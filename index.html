@@ -3,244 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber-Scan | Smart Data Extractor</title>
-
+    <title>Cyber-Scan Pro | Dhaka Male</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
     <style>
         @import url('https://fonts.cdnfonts.com/css/solaimanlipi');
-
+        
         :root {
-            --neon-blue: #00f3ff;
-            --bg-dark: #020205;
-            --glass: rgba(0, 243, 255, 0.08);
+            --neon: #00f3ff;
+            --bg: #020205;
         }
 
         body {
-            margin: 0;
-            font-family: 'SolaimanLipi', Arial, sans-serif;
-            background: var(--bg-dark);
+            background: var(--bg);
             color: #e0e0e0;
+            font-family: 'SolaimanLipi', sans-serif;
+            margin: 0;
             display: flex;
             justify-content: center;
+            padding: 20px;
         }
 
         .container {
-            width: 95%;
-            max-width: 900px;
-            margin-top: 5vh;
-            padding-bottom: 50px;
+            width: 100%;
+            max-width: 800px;
         }
 
-        .search-area {
+        .search-box {
             position: sticky;
-            top: 20px;
-            z-index: 100;
-            background: rgba(2, 2, 5, 0.9);
+            top: 10px;
+            background: rgba(2, 2, 5, 0.95);
             padding: 20px;
-            border: 1px solid var(--neon-blue);
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
+            border: 1px solid var(--neon);
+            border-radius: 12px;
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            z-index: 100;
         }
 
         input {
             width: 100%;
             background: transparent;
             border: none;
-            border-bottom: 2px solid var(--neon-blue);
-            padding: 15px;
+            border-bottom: 2px solid var(--neon);
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            padding: 10px 0;
             outline: none;
         }
 
         .status {
-            font-size: 0.75rem;
-            color: var(--neon-blue);
-            margin-top: 10px;
-            text-transform: uppercase;
             text-align: center;
+            font-size: 0.7rem;
+            color: var(--neon);
+            margin-top: 10px;
             letter-spacing: 2px;
         }
 
-        .results { margin-top: 30px; }
-
-        /* --- SMART CARD DESIGN --- */
-        .card {
-            background: var(--glass);
-            border-left: 5px solid var(--neon-blue);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            animation: slideIn 0.3s ease-out;
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            margin-top: 20px;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 6px solid var(--neon);
+            animation: fadeIn 0.4s ease;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .id-badge {
+        .id-circle {
+            background: var(--neon);
+            color: black;
             display: inline-block;
-            background: var(--neon-blue);
-            color: #000;
-            padding: 2px 12px;
-            border-radius: 4px;
+            padding: 4px 15px;
+            border-radius: 50px;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
-        .data-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .data-item {
-            background: rgba(255,255,255,0.03);
-            padding: 10px;
-            border-radius: 5px;
+        .data-row {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
         }
 
         .label {
-            color: var(--neon-blue);
+            color: var(--neon);
             font-size: 0.8rem;
-            display: block;
-            margin-bottom: 3px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
         }
 
-        .value { font-size: 1.1rem; color: #fff; }
-
-        .full-raw {
-            margin-top: 15px;
-            font-size: 0.85rem;
-            color: #888;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 10px;
+        .value {
+            font-size: 1.2rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
         }
 
-        .highlight { background: rgba(0, 243, 255, 0.4); color: white; border-radius: 2px; }
+        .highlight {
+            background: rgba(0, 243, 255, 0.4);
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="search-area">
-        <input id="searchBox" placeholder="নাম, আইডি বা জন্ম তারিখ দিয়ে খুঁজুন..." autocomplete="off">
-        <div id="status" class="status">Initializing Neural Index...</div>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="জন্ম তারিখ বা আইডি দিয়ে খুঁজুন..." autocomplete="off">
+        <div id="status" class="status">ফাইল লোড হচ্ছে...</div>
     </div>
 
-    <div id="results" class="results"></div>
+    <div id="results"></div>
 </div>
 
 <script>
-const pdfjsLib = window['pdfjs-dist/build/pdf'];
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-const pdfCollection = [
-    { name: "Main Database", url: "pdfs/data.pdf" } // আপনার পিডিএফ ফাইলের নাম দিন
-];
+    let pdfData = "";
 
-let searchIndex = [];
-
-// টেক্সট ক্লিন করার ফাংশন
-const normalizeText = t => t.normalize("NFC").replace(/\s+/g," ").trim();
-
-async function init() {
-    const status = document.getElementById("status");
-    for(const doc of pdfCollection) {
+    // ১. পিডিএফ থেকে টেক্সট এক্সট্রাক্ট করা
+    async function loadData() {
+        const status = document.getElementById('status');
         try {
-            const pdf = await pdfjsLib.getDocument(doc.url).promise;
-            let fullContent = "";
-            for(let i=1; i<=pdf.numPages; i++) {
+            const pdf = await pdfjsLib.getDocument('pdfs/dhaka_male.pdf').promise;
+            let text = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
-                const text = await page.getTextContent();
-                fullContent += text.items.map(s => s.str).join(" ") + " ";
+                const content = await page.getTextContent();
+                text += content.items.map(s => s.str).join(" ") + " \n ";
             }
-            searchIndex.push({ ...doc, content: normalizeText(fullContent) });
-        } catch(e) { console.error("Load fail:", doc.url); }
-    }
-    status.innerText = "DATABASE ONLINE | READY FOR SCAN";
-}
-
-// এই ফাংশনটি ডাটার ভেতর থেকে নির্দিষ্ট অংশ খুঁজে বের করে (Smart Parser)
-function extractField(chunk, label, stopAt) {
-    const regex = new RegExp(`${label}(.*?)(?=${stopAt}|$)`, "i");
-    const match = chunk.match(regex);
-    return match ? match[1].replace(/[:]/g, "").trim() : "পাওয়া যায়নি";
-}
-
-function runSearch() {
-    const q = normalizeText(document.getElementById("searchBox").value);
-    const resultsContainer = document.getElementById("results");
-    resultsContainer.innerHTML = "";
-
-    if(q.length < 2) return;
-
-    searchIndex.forEach(doc => {
-        // একাধিক রেজাল্ট পাওয়ার জন্য লুপ
-        let startIndex = 0;
-        while ((startIndex = doc.content.indexOf(q, startIndex)) !== -1) {
-            
-            // রেজাল্টের আশেপাশে ৫০০ ক্যারেক্টার নেওয়া হচ্ছে ডাটা পার্স করার জন্য
-            const blockStart = Math.max(0, startIndex - 200);
-            const blockEnd = Math.min(doc.content.length, startIndex + 400);
-            const chunk = doc.content.substring(blockStart, blockEnd);
-
-            // ১. আইডি/সিরিয়াল বের করা (সংখ্যার প্যাটার্ন দিয়ে)
-            const idMatch = chunk.match(/(\d{4})\./); 
-            const id = idMatch ? idMatch[1] : "---";
-
-            // ২. স্মার্ট ফিল্ড এক্সট্রাকশন (আপনার দেওয়া স্যাম্পল অনুযায়ী)
-            const name = extractField(chunk, "নাম", "Ïভাটার নং");
-            const father = extractField(chunk, "িপতা", "মাতা");
-            const phone = extractField(chunk, "Ïভাটার নং", "িপতা");
-            const address = extractField(chunk, "িঠকানা", "---");
-
-            resultsContainer.innerHTML += `
-                <div class="card">
-                    <div class="id-badge">ID: ${id}</div>
-                    
-                    <div class="data-grid">
-                        <div class="data-item">
-                            <span class="label">নাম:</span>
-                            <span class="value">${name}</span>
-                        </div>
-                        <div class="data-item">
-                            <span class="label">পিতার নাম:</span>
-                            <span class="value">${father}</span>
-                        </div>
-                        <div class="data-item">
-                            <span class="label">ভোটার নং:</span>
-                            <span class="value">${phone}</span>
-                        </div>
-                        <div class="data-item">
-                            <span class="label">ঠিকানা:</span>
-                            <span class="value">${address}</span>
-                        </div>
-                    </div>
-
-                    <div class="full-raw">
-                        <span class="label">Raw Match Snippet:</span>
-                        ...${chunk.replace(q, `<span class="highlight">${q}</span>`)}...
-                    </div>
-                </div>
-            `;
-
-            startIndex += q.length; // পরবর্তী রেজাল্টের জন্য ইনডেক্স আপডেট
-            if(resultsContainer.children.length > 10) break; // পারফরম্যান্সের জন্য লিমিট
+            pdfData = text;
+            status.innerText = "সিস্টেম অনলাইন | ডাটা লোড সম্পন্ন";
+        } catch (e) {
+            status.innerText = "ফাইল পাওয়া যায়নি! (pdfs/dhaka_male.pdf)";
+            console.error(e);
         }
-    });
-}
+    }
 
-let timer;
-document.getElementById("searchBox").addEventListener("input", () => {
-    clearTimeout(timer);
-    timer = setTimeout(runSearch, 300);
-});
+    // ২. স্মার্ট সার্চ এবং পার্সিং লজিক
+    function doSearch() {
+        const query = document.getElementById('searchInput').value.trim();
+        const resultsArea = document.getElementById('results');
+        resultsArea.innerHTML = "";
 
-init();
+        if (query.length < 3) return;
+
+        // আপনার ডাটা যেহেতু সংখ্যা (১১৪৯.) দিয়ে শুরু হয়, তাই সেটা দিয়ে ভাগ করছি
+        const entries = pdfData.split(/(?=\d{4}\.)/);
+
+        entries.forEach(entry => {
+            if (entry.includes(query)) {
+                
+                // Regex দিয়ে আইডি, নাম এবং পিতা আলাদা করা
+                const idMatch = entry.match(/(\d{4})\./);
+                const nameMatch = entry.match(/নাম\s*[:：]\s*(.*?)(?=Ïভাটার|িপতা|মাতা|$)/);
+                const fatherMatch = entry.match(/িপতা\s*[:：]\s*(.*?)(?=মাতা|Ïপশা|$)/);
+
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `
+                    <div class="id-circle">ID: ${idMatch ? idMatch[1] : 'N/A'}</div>
+                    
+                    <div class="data-row">
+                        <span class="label">পূর্ণ নাম:</span>
+                        <span class="value">${nameMatch ? nameMatch[1].trim() : 'পাওয়া যায়নি'}</span>
+                    </div>
+
+                    <div class="data-row">
+                        <span class="label">পিতার নাম:</span>
+                        <span class="value">${fatherMatch ? fatherMatch[1].trim() : 'পাওয়া যায়নি'}</span>
+                    </div>
+
+                    <div style="font-size: 0.8rem; color: #666; margin-top: 15px; border-top: 1px dashed #444; padding-top: 10px;">
+                        <strong>Raw Data:</strong> ${entry.replace(query, `<span class="highlight">${query}</span>`)}
+                    </div>
+                `;
+                resultsArea.appendChild(card);
+            }
+        });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', doSearch);
+    loadData();
 </script>
+
 </body>
 </html>
