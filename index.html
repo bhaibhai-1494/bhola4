@@ -1,221 +1,235 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber-Scan | SolaimanLipi Search</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    
-    <style>
-        /* --- 1. FONT UPLOAD SECTION --- */
-        @font-face {
-            font-family: 'SolaimanLipi';
-            src: url('SolaimanLipi.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber-Scan | Bangla PDF Search</title>
 
-        :root {
-            --neon-blue: #00f3ff;
-            --bg-dark: #020205;
-            --glass: rgba(0, 243, 255, 0.03);
-        }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
-        body {
-            background-color: var(--bg-dark);
-            color: #e0e0e0;
-            /* Applying SolaimanLipi globally */
-            font-family: 'SolaimanLipi', Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            background-image: 
-                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
+<style>
+@font-face {
+    font-family: 'SolaimanLipi';
+    src: url('SolaimanLipi.ttf') format('truetype');
+}
 
-        .search-container {
-            margin-top: 15vh;
-            width: 85%;
-            max-width: 800px;
-            text-align: center;
-        }
+:root {
+    --neon-blue:#00f3ff;
+    --bg-dark:#020205;
+    --glass:rgba(0,243,255,0.05);
+}
 
-        h1 {
-            font-weight: 100;
-            font-size: 2.5rem;
-            letter-spacing: 12px;
-            color: var(--neon-blue);
-            text-shadow: 0 0 15px var(--neon-blue);
-            margin-bottom: 40px;
-        }
+body {
+    margin:0;
+    min-height:100vh;
+    font-family:'SolaimanLipi', sans-serif;
+    background:var(--bg-dark);
+    color:#e0e0e0;
+    display:flex;
+    justify-content:center;
+    background-image:
+        linear-gradient(rgba(0,243,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,243,255,0.03) 1px, transparent 1px);
+    background-size:40px 40px;
+}
 
-        .hud-input-box {
-            position: relative;
-            background: var(--glass);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            padding: 5px;
-            border-radius: 2px;
-            box-shadow: inset 0 0 15px rgba(0, 243, 255, 0.1);
-        }
+.container {
+    margin-top:10vh;
+    width:90%;
+    max-width:900px;
+}
 
-        #searchBox {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid var(--neon-blue);
-            padding: 15px;
-            color: #fff;
-            font-size: 1.4rem;
-            font-family: 'SolaimanLipi', sans-serif; /* Typed text uses your font */
-            outline: none;
-            box-sizing: border-box;
-        }
+h1 {
+    text-align:center;
+    letter-spacing:10px;
+    font-weight:100;
+    color:var(--neon-blue);
+    text-shadow:0 0 15px var(--neon-blue);
+    margin-bottom:40px;
+}
 
-        #searchBox::placeholder {
-            color: rgba(0, 243, 255, 0.4);
-            font-size: 1rem;
-            letter-spacing: 2px;
-        }
+.filters {
+    display:flex;
+    gap:15px;
+    margin-bottom:20px;
+}
 
-        .loader-text {
-            margin-top: 20px;
-            font-size: 0.7rem;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
+select, input {
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:2px solid var(--neon-blue);
+    padding:14px;
+    color:white;
+    font-size:1.2rem;
+    outline:none;
+}
 
-        .results {
-            margin-top: 40px;
-            width: 100%;
-            text-align: left;
-        }
+select option {
+    background:#020205;
+}
 
-        .result-card {
-            background: rgba(255, 255, 255, 0.02);
-            border-left: 3px solid var(--neon-blue);
-            padding: 25px;
-            margin-bottom: 20px;
-            transition: 0.3s;
-            border-radius: 0 10px 10px 0;
-        }
+.status {
+    margin-top:15px;
+    font-size:.75rem;
+    letter-spacing:3px;
+    color:var(--neon-blue);
+    text-transform:uppercase;
+}
 
-        .result-card:hover {
-            background: rgba(0, 243, 255, 0.05);
-            transform: translateX(10px);
-        }
+.results {
+    margin-top:40px;
+}
 
-        .file-label {
-            color: var(--neon-blue);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            display: block;
-        }
+.card {
+    background:rgba(255,255,255,0.03);
+    border-left:3px solid var(--neon-blue);
+    padding:22px;
+    margin-bottom:20px;
+    border-radius:0 10px 10px 0;
+    transition:.3s;
+}
 
-        .content-snippet {
-            line-height: 1.8;
-            font-size: 1.1rem;
-            color: #ccc;
-        }
+.card:hover {
+    background:rgba(0,243,255,0.06);
+    transform:translateX(8px);
+}
 
-        .highlight {
-            background: rgba(0, 243, 255, 0.3);
-            color: white;
-            padding: 0 4px;
-            border-radius: 2px;
-        }
-    </style>
+.label {
+    color:var(--neon-blue);
+    font-size:.8rem;
+    margin-bottom:10px;
+    display:block;
+    text-transform:uppercase;
+}
+
+.snippet {
+    line-height:1.8;
+    font-size:1.05rem;
+    color:#ccc;
+}
+
+.highlight {
+    background:rgba(0,243,255,0.35);
+    color:white;
+    padding:0 4px;
+    border-radius:2px;
+}
+</style>
 </head>
+
 <body>
 
-<div class="search-container">
+<div class="container">
     <h1>DATA SCANNER</h1>
-    
-    <div class="hud-input-box">
-        <input type="text" id="searchBox" placeholder="পিডিএফ এর ভেতরে অনুসন্ধান করুন...">
-    </div>
-    
-    <div id="status" class="loader-text">Initializing Neural Index...</div>
 
-    <div id="resultsArea" class="results"></div>
+    <div class="filters">
+        <select id="areaFilter">
+            <option value="all">All Areas</option>
+            <option value="Dhaka">Dhaka</option>
+            <option value="Chittagong">Chittagong</option>
+        </select>
+
+        <select id="genderFilter">
+            <option value="all">All Genders</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+    </div>
+
+    <input id="searchBox" placeholder="পিডিএফ এর ভেতরে অনুসন্ধান করুন...">
+    <div id="status" class="status">Initializing Neural Index...</div>
+
+    <div id="results" class="results"></div>
 </div>
 
 <script>
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+const pdfjsLib = window['pdfjs-dist/build/pdf'];
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-    // --- CONFIG: ADD YOUR PDF FILENAMES HERE ---
-    const pdfCollection = [
-        { name: "Archive Report 01", url: "file1.pdf" },
-        { name: "Archive Report 02", url: "file2.pdf" }
-    ];
+/* ===== PDF FILE MANAGEMENT ===== */
+const pdfCollection = [
+    { name:"Dhaka Male Report", url:"pdfs/dhaka_male.pdf", area:"Dhaka", gender:"Male" },
+    { name:"Dhaka Female Report", url:"pdfs/dhaka_female.pdf", area:"Dhaka", gender:"Female" },
+    { name:"CTG General Report", url:"pdfs/ctg_all.pdf", area:"Chittagong", gender:"All" }
+];
 
-    let searchIndex = [];
+let searchIndex = [];
 
-    // Initialize: Fetch and read PDFs
-    async function init() {
-        const status = document.getElementById('status');
-        
-        for (let item of pdfCollection) {
-            try {
-                const text = await extractPdfText(item.url);
-                searchIndex.push({ ...item, content: text });
-            } catch (err) {
-                console.error("Error loading " + item.url);
-            }
+/* ===== HELPERS ===== */
+const normalizeBangla = t =>
+    t.normalize("NFC").replace(/\s+/g," ").trim();
+
+const escapeRegex = s =>
+    s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+
+/* ===== LOAD PDFs ===== */
+async function extractPdfText(path){
+    const pdf = await pdfjsLib.getDocument(path).promise;
+    let text="";
+    for(let i=1;i<=pdf.numPages;i++){
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        text += content.items.map(i=>i.str).join(" ")+" ";
+    }
+    return normalizeBangla(text);
+}
+
+async function init(){
+    const status=document.getElementById("status");
+    for(const doc of pdfCollection){
+        try{
+            const content=await extractPdfText(doc.url);
+            searchIndex.push({...doc,content});
+        }catch(e){
+            console.error("PDF load failed:",doc.url);
         }
-        
-        status.innerText = "Search Engine Ready | " + searchIndex.length + " Docs Scanned";
     }
+    status.innerText=`${searchIndex.length} Documents Indexed`;
+}
 
-    async function extractPdfText(path) {
-        const pdf = await pdfjsLib.getDocument(path).promise;
-        let fullText = "";
-        for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            fullText += textContent.items.map(s => s.str).join(" ") + " ";
-        }
-        return fullText;
-    }
+/* ===== SEARCH ===== */
+function runSearch(){
+    const q=normalizeBangla(searchBox.value);
+    const area=areaFilter.value;
+    const gender=genderFilter.value;
+    results.innerHTML="";
 
-    // Logic for Searching
-    function runSearch() {
-        const query = document.getElementById('searchBox').value.trim();
-        const resultsArea = document.getElementById('resultsArea');
-        resultsArea.innerHTML = "";
+    if(q.length<2) return;
 
-        if (query.length < 2) return;
+    searchIndex.forEach(doc=>{
+        if(area!=="all" && doc.area!==area) return;
+        if(gender!=="all" && doc.gender!==gender && doc.gender!=="All") return;
+        if(!doc.content.includes(q)) return;
 
-        searchIndex.forEach(doc => {
-            if (doc.content.includes(query)) {
-                // Find snippet around the word
-                const index = doc.content.indexOf(query);
-                const start = Math.max(0, index - 80);
-                const end = Math.min(doc.content.length, index + 120);
-                let snippet = doc.content.substring(start, end);
-                
-                // Highlight matches
-                const highlighted = snippet.replace(new RegExp(query, 'g'), `<span class="highlight">${query}</span>`);
+        const i=doc.content.indexOf(q);
+        const snippet=doc.content.substring(
+            Math.max(0,i-80),
+            Math.min(doc.content.length,i+120)
+        );
 
-                const card = document.createElement('div');
-                card.className = 'result-card';
-                card.innerHTML = `
-                    <span class="file-label">${doc.name}</span>
-                    <div class="content-snippet">...${highlighted}...</div>
-                `;
-                resultsArea.appendChild(card);
-            }
-        });
-    }
+        const highlighted=snippet.replace(
+            new RegExp(escapeRegex(q),"g"),
+            `<span class="highlight">$&</span>`
+        );
 
-    document.getElementById('searchBox').addEventListener('input', runSearch);
-    init();
+        results.innerHTML+=`
+        <div class="card">
+            <span class="label">${doc.name} | ${doc.area} | ${doc.gender}</span>
+            <div class="snippet">...${highlighted}...</div>
+        </div>`;
+    });
+}
+
+/* ===== DEBOUNCE ===== */
+let timer;
+searchBox.addEventListener("input",()=>{
+    clearTimeout(timer);
+    timer=setTimeout(runSearch,300);
+});
+
+init();
 </script>
 
 </body>
