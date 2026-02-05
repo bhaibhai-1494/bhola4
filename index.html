@@ -85,6 +85,13 @@ input {
     font-weight:bold;
 }
 
+.voter {
+    color:var(--neon);
+    font-weight:bold;
+    margin-bottom:10px;
+    display:block;
+}
+
 @keyframes fadeIn {
     from { opacity:0; transform:translateY(10px); }
     to { opacity:1; transform:translateY(0); }
@@ -98,7 +105,7 @@ input {
 
     <div class="search-box">
         <input id="searchInput"
-               placeholder="জন্ম তারিখ (যেমন: ২৫/০৫/২০০৫) লিখুন..."
+               placeholder="জন্ম তারিখ লিখুন (যেমন: ২৫/০৫/২০০৫)"
                autocomplete="off">
         <div id="status" class="status">Loading PDF Engine...</div>
     </div>
@@ -136,43 +143,57 @@ async function initScanner() {
     }
 }
 
-/* ===== SEARCH LOGIC ===== */
+/* ===== SEARCH LOGIC (MULTIPLE RESULTS) ===== */
 function handleSearch() {
     const query = document.getElementById("searchInput").value.trim();
     const results = document.getElementById("results");
     results.innerHTML = "";
 
-    if (query.length < 6) return;
+    if (query.length < 6 || !fullPdfText) return;
 
-    let index = fullPdfText.indexOf(query);
+    let pos = 0;
+    let found = false;
 
-    if (index === -1) {
-        results.innerHTML =
-            "<p style='text-align:center;color:gray;'>কোনো তথ্য পাওয়া যায়নি</p>";
-        return;
+    while ((pos = fullPdfText.indexOf(query, pos)) !== -1) {
+        found = true;
+
+        /* record start */
+        let start = fullPdfText.lastIndexOf(" Ïভালা", pos);
+        start = start === -1 ? 0 : start + 1;
+
+        /* record end */
+        let end = fullPdfText.indexOf(" Ïভালা", pos + query.length);
+        if (end === -1) end = pos + 300;
+
+        let record = fullPdfText.substring(start, end).trim();
+
+        /* voter number (4 digits before dot) */
+        let voterMatch = record.match(/(\d{4})\s*\./);
+        let voterNo = voterMatch ? voterMatch[1] : "N/A";
+
+        /* highlight search */
+        const safe = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        record = record.replace(
+            new RegExp(safe, "g"),
+            `<span class="highlight">${query}</span>`
+        );
+
+        const card = document.createElement("div");
+        card.className = "result-card";
+        card.innerHTML = `
+            <span class="voter">ভোটার নং: ${voterNo}</span>
+            <div class="data-content">${record}</div>
+        `;
+
+        results.appendChild(card);
+
+        pos += query.length;
     }
 
-    /* 🔍 find previous dot */
-    let start = fullPdfText.lastIndexOf(" Ïভালা", index);
-    start = start === -1 ? 0 : start + 1;
-
-    /* 🔍 find next Ïভালা */
-    let end = fullPdfText.indexOf(" Ïভালা", index);
-    if (end === -1) end = index + 250;
-
-    let record = fullPdfText.substring(start, end).trim();
-
-    /* ✨ highlight */
-    const safe = query.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-    record = record.replace(
-        new RegExp(safe, "g"),
-        `<span class="highlight">${query}</span>`
-    );
-
-    const card = document.createElement("div");
-    card.className = "result-card";
-    card.innerHTML = `<div class="data-content">${record}</div>`;
-    results.appendChild(card);
+    if (!found) {
+        results.innerHTML =
+            "<p style='text-align:center;color:gray;'>কোনো তথ্য পাওয়া যায়নি</p>";
+    }
 }
 
 document.getElementById("searchInput")
@@ -183,4 +204,3 @@ initScanner();
 
 </body>
 </html>
-
