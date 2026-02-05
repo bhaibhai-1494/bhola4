@@ -158,7 +158,7 @@ function handleSearch() {
         found = true;
 
         /* record start */
-        let start = fullPdfText.lastIndexOf(" Ïভালা", pos);
+        let start = fullPdfText.lastIndexOf("    .", pos);
         start = start === -1 ? 0 : start + 1;
 
         /* record end */
@@ -204,3 +204,4 @@ initScanner();
 
 </body>
 </html>
+
