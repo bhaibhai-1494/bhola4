@@ -1,121 +1,138 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cyber-Scan | Bangla PDF Search</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber-Scan | Pro Bangla PDF Search</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
-<style>
-@font-face {
-    font-family: 'SolaimanLipi';
-    src: url('SolaimanLipi.ttf') format('truetype');
-}
+    <style>
+        /* Using a reliable CDN for SolaimanLipi if local fails */
+        @import url('https://fonts.cdnfonts.com/css/solaimanlipi');
 
-:root {
-    --neon-blue:#00f3ff;
-    --bg-dark:#020205;
-    --glass:rgba(0,243,255,0.05);
-}
+        :root {
+            --neon-blue: #00f3ff;
+            --bg-dark: #020205;
+            --glass: rgba(0, 243, 255, 0.05);
+        }
 
-body {
-    margin:0;
-    min-height:100vh;
-    font-family:'SolaimanLipi', sans-serif;
-    background:var(--bg-dark);
-    color:#e0e0e0;
-    display:flex;
-    justify-content:center;
-    background-image:
-        linear-gradient(rgba(0,243,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,243,255,0.03) 1px, transparent 1px);
-    background-size:40px 40px;
-}
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'SolaimanLipi', Arial, sans-serif;
+            background: var(--bg-dark);
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            background-image:
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
 
-.container {
-    margin-top:10vh;
-    width:90%;
-    max-width:900px;
-}
+        .container {
+            margin-top: 5vh;
+            width: 90%;
+            max-width: 900px;
+            padding-bottom: 50px;
+        }
 
-h1 {
-    text-align:center;
-    letter-spacing:10px;
-    font-weight:100;
-    color:var(--neon-blue);
-    text-shadow:0 0 15px var(--neon-blue);
-    margin-bottom:40px;
-}
+        h1 {
+            text-align: center;
+            letter-spacing: 5px;
+            font-weight: 300;
+            color: var(--neon-blue);
+            text-shadow: 0 0 15px var(--neon-blue);
+        }
 
-.filters {
-    display:flex;
-    gap:15px;
-    margin-bottom:20px;
-}
+        .search-section {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 20px;
+            border: 1px solid rgba(0, 243, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
 
-select, input {
-    width:100%;
-    background:transparent;
-    border:none;
-    border-bottom:2px solid var(--neon-blue);
-    padding:14px;
-    color:white;
-    font-size:1.2rem;
-    outline:none;
-}
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
 
-select option {
-    background:#020205;
-}
+        select, input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            border-bottom: 2px solid var(--neon-blue);
+            padding: 14px;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            transition: 0.3s;
+        }
 
-.status {
-    margin-top:15px;
-    font-size:.75rem;
-    letter-spacing:3px;
-    color:var(--neon-blue);
-    text-transform:uppercase;
-}
+        input:focus {
+            background: rgba(0, 243, 255, 0.05);
+            box-shadow: 0 5px 15px rgba(0, 243, 255, 0.1);
+        }
 
-.results {
-    margin-top:40px;
-}
+        .status {
+            margin-top: 15px;
+            font-size: .7rem;
+            letter-spacing: 2px;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+        }
 
-.card {
-    background:rgba(255,255,255,0.03);
-    border-left:3px solid var(--neon-blue);
-    padding:22px;
-    margin-bottom:20px;
-    border-radius:0 10px 10px 0;
-    transition:.3s;
-}
+        .results {
+            margin-top: 30px;
+        }
 
-.card:hover {
-    background:rgba(0,243,255,0.06);
-    transform:translateX(8px);
-}
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--neon-blue);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 0 10px 10px 0;
+            transition: .3s ease;
+            animation: fadeIn 0.5s ease forwards;
+        }
 
-.label {
-    color:var(--neon-blue);
-    font-size:.8rem;
-    margin-bottom:10px;
-    display:block;
-    text-transform:uppercase;
-}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-.snippet {
-    line-height:1.8;
-    font-size:1.05rem;
-    color:#ccc;
-}
+        .card:hover {
+            background: rgba(0, 243, 255, 0.08);
+            transform: translateX(5px);
+        }
 
-.highlight {
-    background:rgba(0,243,255,0.35);
-    color:white;
-    padding:0 4px;
-    border-radius:2px;
-}
-</style>
+        .label {
+            color: var(--neon-blue);
+            font-size: .75rem;
+            margin-bottom: 8px;
+            display: block;
+            font-weight: bold;
+        }
+
+        .snippet {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #ddd;
+        }
+
+        .highlight {
+            background: rgba(0, 243, 255, 0.4);
+            color: #fff;
+            padding: 2px 0;
+            font-weight: bold;
+            border-radius: 2px;
+        }
+
+        ::placeholder { color: rgba(255, 255, 255, 0.3); }
+    </style>
 </head>
 
 <body>
@@ -123,113 +140,147 @@ select option {
 <div class="container">
     <h1>DATA SCANNER</h1>
 
-    <div class="filters">
-        <select id="areaFilter">
-            <option value="all">All Areas</option>
-            <option value="Dhaka">Dhaka</option>
-            <option value="Chittagong">Chittagong</option>
-        </select>
+    <div class="search-section">
+        <div class="filters">
+            <select id="areaFilter">
+                <option value="all">সকল এলাকা (All Areas)</option>
+                <option value="Dhaka">ঢাকা (Dhaka)</option>
+                <option value="Chittagong">চট্টগ্রাম (Chittagong)</option>
+            </select>
 
-        <select id="genderFilter">
-            <option value="all">All Genders</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-        </select>
+            <select id="genderFilter">
+                <option value="all">লিঙ্গ (All Genders)</option>
+                <option value="Male">পুরুষ (Male)</option>
+                <option value="Female">মহিলা (Female)</option>
+            </select>
+        </div>
+
+        <input id="searchBox" placeholder="পিডিএফ এর ভেতরে অনুসন্ধান করুন (উদাঃ নাম বা এলাকা)...">
+        <div id="status" class="status">সিস্টেম লোড হচ্ছে...</div>
     </div>
-
-    <input id="searchBox" placeholder="পিডিএফ এর ভেতরে অনুসন্ধান করুন...">
-    <div id="status" class="status">Initializing Neural Index...</div>
 
     <div id="results" class="results"></div>
 </div>
 
 <script>
 const pdfjsLib = window['pdfjs-dist/build/pdf'];
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-/* ===== PDF FILE MANAGEMENT ===== */
+/* ===== PDF CONFIGURATION ===== */
 const pdfCollection = [
-    { name:"Dhaka Male Report", url:"pdfs/dhaka_male.pdf", area:"Dhaka", gender:"Male" },
-    { name:"Dhaka Female Report", url:"pdfs/dhaka_female.pdf", area:"Dhaka", gender:"Female" },
-    { name:"CTG General Report", url:"pdfs/ctg_all.pdf", area:"Chittagong", gender:"All" }
+    { name:"ঢাকা পুরুষ রিপোর্ট", url:"pdfs/dhaka_male.pdf", area:"Dhaka", gender:"Male" },
+    { name:"ঢাকা মহিলা রিপোর্ট", url:"pdfs/dhaka_female.pdf", area:"Dhaka", gender:"Female" },
+    { name:"চট্টগ্রাম জেনারেল রিপোর্ট", url:"pdfs/ctg_all.pdf", area:"Chittagong", gender:"All" }
 ];
 
 let searchIndex = [];
 
-/* ===== HELPERS ===== */
-const normalizeBangla = t =>
-    t.normalize("NFC").replace(/\s+/g," ").trim();
+/* ===== BANGLA NORMALIZER ===== 
+   This fixes "Juktakkhor" issues by ensuring characters are 
+   stored in a consistent Unicode format (NFC).
+*/
+const cleanBangla = (text) => {
+    if (!text) return "";
+    return text
+        .normalize("NFC") // Combines characters like 'ka' + 'hashant'
+        .replace(/[\u200B-\u200D\uFEFF]/g, "") // Remove hidden non-printing chars
+        .replace(/\s+/g, " ") // Collapse extra spaces
+        .trim();
+};
 
-const escapeRegex = s =>
-    s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+/* ===== LOAD & INDEX PDFs ===== */
+async function extractTextFromPDF(url) {
+    try {
+        const loadingTask = pdfjsLib.getDocument(url);
+        const pdf = await loadingTask.promise;
+        let fullText = "";
 
-/* ===== LOAD PDFs ===== */
-async function extractPdfText(path){
-    const pdf = await pdfjsLib.getDocument(path).promise;
-    let text="";
-    for(let i=1;i<=pdf.numPages;i++){
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        text += content.items.map(i=>i.str).join(" ")+" ";
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            
+            // PDF.js extracts text items. We join them with spaces.
+            const strings = content.items.map(item => item.str);
+            fullText += strings.join(" ") + " ";
+        }
+        return cleanBangla(fullText);
+    } catch (error) {
+        console.error("Error loading PDF:", url, error);
+        return null;
     }
-    return normalizeBangla(text);
 }
 
-async function init(){
-    const status=document.getElementById("status");
-    for(const doc of pdfCollection){
-        try{
-            const content=await extractPdfText(doc.url);
-            searchIndex.push({...doc,content});
-        }catch(e){
-            console.error("PDF load failed:",doc.url);
+async function initSystem() {
+    const statusEl = document.getElementById("status");
+    let loadedCount = 0;
+
+    for (const doc of pdfCollection) {
+        statusEl.innerText = `Indexing: ${doc.name}...`;
+        const text = await extractTextFromPDF(doc.url);
+        
+        if (text) {
+            searchIndex.push({ ...doc, content: text });
+            loadedCount++;
         }
     }
-    status.innerText=`${searchIndex.length} Documents Indexed`;
+    statusEl.innerText = `সিস্টেম রেডি: ${loadedCount} টি ফাইল ইনডেক্স করা হয়েছে`;
 }
 
-/* ===== SEARCH ===== */
-function runSearch(){
-    const q=normalizeBangla(searchBox.value);
-    const area=areaFilter.value;
-    const gender=genderFilter.value;
-    results.innerHTML="";
+/* ===== SEARCH CORE ===== */
+function performSearch() {
+    const query = cleanBangla(document.getElementById("searchBox").value);
+    const selectedArea = document.getElementById("areaFilter").value;
+    const selectedGender = document.getElementById("genderFilter").value;
+    const resultsContainer = document.getElementById("results");
 
-    if(q.length<2) return;
+    resultsContainer.innerHTML = "";
 
-    searchIndex.forEach(doc=>{
-        if(area!=="all" && doc.area!==area) return;
-        if(gender!=="all" && doc.gender!==gender && doc.gender!=="All") return;
-        if(!doc.content.includes(q)) return;
+    if (query.length < 2) return;
 
-        const i=doc.content.indexOf(q);
-        const snippet=doc.content.substring(
-            Math.max(0,i-80),
-            Math.min(doc.content.length,i+120)
-        );
+    searchIndex.forEach(doc => {
+        // Filter logic
+        if (selectedArea !== "all" && doc.area !== selectedArea) return;
+        if (selectedGender !== "all" && doc.gender !== selectedGender && doc.gender !== "All") return;
 
-        const highlighted=snippet.replace(
-            new RegExp(escapeRegex(q),"g"),
-            `<span class="highlight">$&</span>`
-        );
+        // Search logic
+        if (doc.content.includes(query)) {
+            const index = doc.content.indexOf(query);
+            
+            // Create a snippet for context
+            const start = Math.max(0, index - 60);
+            const end = Math.min(doc.content.length, index + 100);
+            let snippet = doc.content.substring(start, end);
 
-        results.innerHTML+=`
-        <div class="card">
-            <span class="label">${doc.name} | ${doc.area} | ${doc.gender}</span>
-            <div class="snippet">...${highlighted}...</div>
-        </div>`;
+            // Highlight the query
+            const highlightedSnippet = snippet.split(query).join(`<span class="highlight">${query}</span>`);
+
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+                <span class="label">${doc.name} | Area: ${doc.area}</span>
+                <div class="snippet">...${highlightedSnippet}...</div>
+            `;
+            resultsContainer.appendChild(card);
+        }
     });
+
+    if (resultsContainer.innerHTML === "" && query.length >= 2) {
+        resultsContainer.innerHTML = `<div style="text-align:center; color:gray; margin-top:20px;">কোনো ফলাফল পাওয়া যায়নি</div>`;
+    }
 }
 
-/* ===== DEBOUNCE ===== */
-let timer;
-searchBox.addEventListener("input",()=>{
-    clearTimeout(timer);
-    timer=setTimeout(runSearch,300);
+/* ===== EVENT LISTENERS ===== */
+let debounceTimer;
+document.getElementById("searchBox").addEventListener("input", () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(performSearch, 300);
 });
 
-init();
+document.getElementById("areaFilter").addEventListener("change", performSearch);
+document.getElementById("genderFilter").addEventListener("change", performSearch);
+
+// Start
+initSystem();
 </script>
 
 </body>
