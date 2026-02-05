@@ -1,175 +1,184 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber-Scan Pro | Advanced PDF Search</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyber-Scan Pro | Record Finder</title>
 
-    <style>
-        @import url('https://fonts.cdnfonts.com/css/solaimanlipi');
-        
-        :root {
-            --neon: #00f3ff;
-            --bg: #020205;
-            --card-bg: rgba(255, 255, 255, 0.05);
-        }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
-        body {
-            background: var(--bg);
-            color: #e0e0e0;
-            font-family: 'SolaimanLipi', sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
+<style>
+@import url('https://fonts.cdnfonts.com/css/solaimanlipi');
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-        }
+:root {
+    --neon:#00f3ff;
+    --bg:#020205;
+}
 
-        .search-area {
-            position: sticky;
-            top: 10px;
-            background: rgba(2, 2, 5, 0.95);
-            padding: 25px;
-            border: 1px solid var(--neon);
-            border-radius: 15px;
-            box-shadow: 0 0 25px rgba(0, 243, 255, 0.15);
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
+body {
+    background:var(--bg);
+    color:#e0e0e0;
+    font-family:'SolaimanLipi', sans-serif;
+    margin:0;
+    padding:20px;
+    display:flex;
+    justify-content:center;
+}
 
-        input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid var(--neon);
-            color: white;
-            font-size: 1.4rem;
-            padding: 12px 0;
-            outline: none;
-        }
+.container {
+    width:100%;
+    max-width:850px;
+}
 
-        .status {
-            text-align: center;
-            font-size: 0.75rem;
-            color: var(--neon);
-            margin-top: 12px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
+.search-box {
+    position:sticky;
+    top:10px;
+    background:rgba(2,2,5,.95);
+    padding:20px;
+    border:1px solid var(--neon);
+    border-radius:12px;
+    box-shadow:0 0 20px rgba(0,243,255,.25);
+    z-index:10;
+}
 
-        .results {
-            margin-top: 30px;
-        }
+input {
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:2px solid var(--neon);
+    color:white;
+    font-size:1.3rem;
+    padding:10px 0;
+    outline:none;
+}
 
-        .data-card {
-            background: var(--card-bg);
-            border-left: 6px solid var(--neon);
-            padding: 25px;
-            margin-bottom: 20px;
-            border-radius: 0 15px 15px 0;
-            line-height: 2;
-            font-size: 1.2rem;
-            animation: slideIn 0.4s ease forwards;
-            white-space: pre-wrap;
-        }
+.status {
+    font-size:.7rem;
+    color:var(--neon);
+    text-align:center;
+    margin-top:10px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+}
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
+.result-card {
+    background:rgba(255,255,255,.05);
+    margin-top:20px;
+    padding:25px;
+    border-radius:12px;
+    border-left:5px solid var(--neon);
+    line-height:1.9;
+    animation:fadeIn .3s ease;
+}
 
-        .highlight {
-            background: rgba(0, 243, 255, 0.4);
-            color: #fff;
-            padding: 2px 4px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-    </style>
+.data-content {
+    font-size:1.15rem;
+    color:#fff;
+    white-space:pre-wrap;
+}
+
+.highlight {
+    background:rgba(0,243,255,.45);
+    color:#fff;
+    padding:0 3px;
+    border-radius:3px;
+    font-weight:bold;
+}
+
+@keyframes fadeIn {
+    from { opacity:0; transform:translateY(10px); }
+    to { opacity:1; transform:translateY(0); }
+}
+</style>
 </head>
+
 <body>
 
 <div class="container">
-    <div class="search-area">
-        <input type="text" id="scanInput" placeholder="জন্ম তারিখ (২৫/০৫/২০০৫) বা আইডি লিখে সার্চ করুন..." autocomplete="off">
-        <div id="status" class="status">Initializing Scanner...</div>
+
+    <div class="search-box">
+        <input id="searchInput"
+               placeholder="জন্ম তারিখ (যেমন: ২৫/০৫/২০০৫) লিখুন..."
+               autocomplete="off">
+        <div id="status" class="status">Loading PDF Engine...</div>
     </div>
-    <div id="results" class="results"></div>
+
+    <div id="results"></div>
+
 </div>
 
 <script>
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+const pdfjsLib = window['pdfjs-dist/build/pdf'];
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-    let indexedBlocks = []; 
+let fullPdfText = "";
 
-    async function initializeScanner() {
-        const statusDisplay = document.getElementById('status');
-        try {
-            const pdf = await pdfjsLib.getDocument('pdfs/dhaka_male.pdf').promise;
-            let rawText = "";
+/* ===== LOAD PDF ===== */
+async function initScanner() {
+    const status = document.getElementById("status");
 
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const content = await page.getTextContent();
-                rawText += content.items.map(item => item.str).join(" ") + " ";
-                statusDisplay.innerText = `স্ক্যানিং: ${Math.round((i/pdf.numPages)*100)}%`;
-            }
+    try {
+        const pdf = await pdfjsLib.getDocument("pdfs/dhaka_male.pdf").promise;
 
-            // আপনার রিকোয়েস্ট অনুযায়ী নির্দিষ্ট বাউন্ডারি লজিক:
-            // এটি ৪টি সংখ্যা+ডট দিয়ে শুরু এবং "Ïভালা" তে শেষ হওয়া ডাটা ব্লক খুঁজে বের করবে।
-            const pattern = /(\d{4}\.[\s\S]*?Ïভালা)/g;
-            indexedBlocks = rawText.match(pattern) || [];
-
-            statusDisplay.innerText = "সিস্টেম রেডি | " + indexedBlocks.length + " টি প্রোফাইল পাওয়া গেছে";
-        } catch (error) {
-            statusDisplay.innerText = "ত্রুটি: pdfs/dhaka_male.pdf পাওয়া যায়নি!";
-            console.error(error);
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            fullPdfText += content.items.map(i => i.str).join(" ") + " ";
+            status.innerText = `Scanning ${Math.round((i/pdf.numPages)*100)}%`;
         }
+
+        status.innerText = "DATABASE ONLINE | READY";
+
+    } catch (e) {
+        status.innerText = "ERROR: PDF NOT FOUND";
+        console.error(e);
+    }
+}
+
+/* ===== SEARCH LOGIC ===== */
+function handleSearch() {
+    const query = document.getElementById("searchInput").value.trim();
+    const results = document.getElementById("results");
+    results.innerHTML = "";
+
+    if (query.length < 6) return;
+
+    let index = fullPdfText.indexOf(query);
+
+    if (index === -1) {
+        results.innerHTML =
+            "<p style='text-align:center;color:gray;'>কোনো তথ্য পাওয়া যায়নি</p>";
+        return;
     }
 
-    function runScan() {
-        const query = document.getElementById('scanInput').value.trim();
-        const resultsContainer = document.getElementById('results');
-        resultsContainer.innerHTML = "";
+    /* 🔍 find previous dot */
+    let start = fullPdfText.lastIndexOf(".", index);
+    start = start === -1 ? 0 : start + 1;
 
-        if (query.length < 3) return;
+    /* 🔍 find next Ïভালা */
+    let end = fullPdfText.indexOf(" Ïভালা", index);
+    if (end === -1) end = index + 250;
 
-        indexedBlocks.forEach((block) => {
-            if (block.includes(query)) {
-                const card = document.createElement('div');
-                card.className = 'data-card';
-                
-                // সার্চ কি-ওয়ার্ড হাইলাইট করার জন্য Regex
-                const safeQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                const highlightedContent = block.replace(
-                    new RegExp(safeQuery, 'g'), 
-                    `<span class="highlight">${query}</span>`
-                );
+    let record = fullPdfText.substring(start, end).trim();
 
-                card.innerHTML = `<div class="content">${highlightedContent}</div>`;
-                resultsContainer.appendChild(card);
-            }
-        });
+    /* ✨ highlight */
+    const safe = query.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    record = record.replace(
+        new RegExp(safe, "g"),
+        `<span class="highlight">${query}</span>`
+    );
 
-        if (resultsContainer.innerHTML === "") {
-            resultsContainer.innerHTML = `<div style="text-align:center; color:#555;">কোনো তথ্য পাওয়া যায়নি।</div>`;
-        }
-    }
+    const card = document.createElement("div");
+    card.className = "result-card";
+    card.innerHTML = `<div class="data-content">${record}</div>`;
+    results.appendChild(card);
+}
 
-    let debounceTimer;
-    document.getElementById('scanInput').addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(runScan, 300);
-    });
+document.getElementById("searchInput")
+    .addEventListener("input", handleSearch);
 
-    initializeScanner();
+initScanner();
 </script>
 
 </body>
