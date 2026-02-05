@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber-Scan Pro | Smart Dot-to-Dot Scanner</title>
+    <title>Cyber-Scan Pro | Data Extractor</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
@@ -13,7 +13,7 @@
         :root {
             --neon: #00f3ff;
             --bg: #020205;
-            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass: rgba(0, 243, 255, 0.05);
         }
 
         body {
@@ -28,17 +28,18 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 850px;
         }
 
+        /* সার্চ বক্স স্টাইল */
         .search-area {
             position: sticky;
             top: 10px;
             background: rgba(2, 2, 5, 0.95);
-            padding: 25px;
+            padding: 20px;
             border: 1px solid var(--neon);
-            border-radius: 15px;
-            box-shadow: 0 0 25px rgba(0, 243, 255, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.2);
             z-index: 100;
             backdrop-filter: blur(10px);
         }
@@ -50,14 +51,8 @@
             border-bottom: 2px solid var(--neon);
             color: white;
             font-size: 1.4rem;
-            padding: 12px 0;
+            padding: 10px 0;
             outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-bottom-width: 3px;
-            text-shadow: 0 0 8px var(--neon);
         }
 
         .status {
@@ -65,141 +60,122 @@
             font-size: 0.75rem;
             color: var(--neon);
             margin-top: 12px;
-            letter-spacing: 2px;
             text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .results {
-            margin-top: 30px;
-        }
-
-        /* ডট-টু-ডট ডাটা কার্ড */
-        .data-card {
-            background: var(--card-bg);
-            border-left: 6px solid var(--neon);
+        /* রেজাল্ট কার্ড স্টাইল */
+        .result-card {
+            background: var(--glass);
+            margin-top: 25px;
             padding: 25px;
-            margin-bottom: 20px;
-            border-radius: 0 15px 15px 0;
-            line-height: 2;
+            border-radius: 15px;
+            border-left: 6px solid var(--neon);
+            line-height: 1.8;
             font-size: 1.2rem;
-            animation: slideIn 0.4s ease forwards;
-            position: relative;
-            overflow: hidden;
+            animation: slideUp 0.4s ease forwards;
+            white-space: pre-wrap;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .highlight {
-            background: rgba(0, 243, 255, 0.35);
+            background: rgba(0, 243, 255, 0.4);
             color: #fff;
-            padding: 2px 4px;
-            border-radius: 4px;
+            padding: 0 4px;
+            border-radius: 3px;
             font-weight: bold;
-            border: 1px solid var(--neon);
         }
 
-        .card-meta {
-            display: block;
-            font-size: 0.7rem;
-            color: var(--neon);
-            margin-bottom: 15px;
-            opacity: 0.6;
-        }
-
-        ::placeholder {
-            color: rgba(255, 255, 255, 0.2);
-        }
+        ::placeholder { color: rgba(255, 255, 255, 0.2); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="search-area">
-        <input type="text" id="scanInput" placeholder="জন্ম তারিখ (২৫/০৫/২০০৫) বা আইডি লিখে সার্চ করুন..." autocomplete="off">
-        <div id="status" class="status">Initializing Neural Index...</div>
+        <input type="text" id="scanInput" placeholder="তথ্য দিয়ে অনুসন্ধান করুন..." autocomplete="off">
+        <div id="status" class="status">Initializing Neural Scanner...</div>
     </div>
-
-    <div id="results" class="results"></div>
+    <div id="results"></div>
 </div>
 
 <script>
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-    let indexedBlocks = []; // এখানে ডট দিয়ে বিভক্ত করা প্রতিটি ব্লক জমা থাকবে
+    let extractedBlocks = [];
 
-    // ১. PDF লোড এবং 'ডট' অনুযায়ী ডাটা প্রসেসিং
-    async function initializeScanner() {
+    // ১. পিডিএফ লোড এবং বাউন্ডারি অনুযায়ী ডাটা ফিল্টারিং
+    async function loadPDF() {
         const statusDisplay = document.getElementById('status');
         try {
             const pdf = await pdfjsLib.getDocument('pdfs/dhaka_male.pdf').promise;
-            let rawText = "";
+            let fullText = "";
 
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const content = await page.getTextContent();
-                
-                // সব টেক্সট আইটেমকে একটি লাইনে নিয়ে আসা
-                rawText += content.items.map(item => item.str).join(" ") + " ";
+                fullText += content.items.map(item => item.str).join(" ") + " ";
                 statusDisplay.innerText = `সিস্টেম স্ক্যানিং: ${Math.round((i/pdf.numPages)*100)}%`;
             }
 
-            // টেক্সটকে ক্লিন করা এবং ডট (.) চিহ্ন দিয়ে ছোট ছোট ব্লকে ভাগ করা
-            // এটি নিশ্চিত করে যে প্রতিটি ব্লক একটি পূর্ণাঙ্গ ইনফরমেশন সেট (১১৪৯. নাম... ইত্যাদি)
-            indexedBlocks = rawText.split('.').map(block => block.trim()).filter(block => block.length > 0);
-            
-            statusDisplay.innerText = "সিস্টেম রেডি | " + indexedBlocks.length + " টি ডাটা ব্লক ইনডেক্স করা হয়েছে";
-        } catch (error) {
-            statusDisplay.innerText = "ত্রুটি: pdfs/dhaka_male.pdf ফাইলটি পাওয়া যায়নি!";
-            console.error(error);
+            /* REGEX লজিক ব্যাখ্যা:
+               \d{4}\.   -> ৪টি সংখ্যা এবং ডট (উদা: ১১৪৯.) দিয়ে শুরু
+               [\s\S]*?  -> মাঝখানে যেকোনো ক্যারেক্টার বা নতুন লাইন
+               Ïভালা     -> যেখানে "Ïভালা" পাওয়া যাবে সেখানে শেষ
+            */
+            const pattern = /(\d{4}\.[\s\S]*?Ïভালা)/g;
+            extractedBlocks = fullText.match(pattern) || [];
+
+            statusDisplay.innerText = `স্ক্যান সম্পন্ন | মোট ${extractedBlocks.length} টি প্রোফাইল ইনডেক্স করা হয়েছে`;
+        } catch (e) {
+            statusDisplay.innerText = "Error: pdfs/dhaka_male.pdf ফাইলটি সঠিক লোকেশনে নেই!";
+            console.error(e);
         }
     }
 
-    // ২. সার্চ লজিক (পূর্বের ডট থেকে পরের ডট পর্যন্ত)
-    function runScan() {
+    // ২. সার্চ লজিক
+    function performSearch() {
         const query = document.getElementById('scanInput').value.trim();
-        const resultsContainer = document.getElementById('results');
-        resultsContainer.innerHTML = "";
+        const resultsArea = document.getElementById('results');
+        resultsArea.innerHTML = "";
 
-        if (query.length < 3) return;
+        if (query.length < 2) return;
 
-        indexedBlocks.forEach((block, index) => {
+        extractedBlocks.forEach(block => {
             if (block.includes(query)) {
-                // কার্ড তৈরি
                 const card = document.createElement('div');
-                card.className = 'data-card';
+                card.className = 'result-card';
                 
-                // সার্চ কি-ওয়ার্ড হাইলাইট করা
-                const highlightedContent = block.replace(
+                // সার্চ টার্ম হাইলাইট করা
+                const highlighted = block.replace(
                     new RegExp(query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), 
                     `<span class="highlight">${query}</span>`
                 );
-
-                card.innerHTML = `
-                    <span class="card-meta">BLOCK REFERENCE ID: #${index + 1001}</span>
-                    <div class="content">${highlightedContent}.</div>
-                `;
-                resultsContainer.appendChild(card);
+                
+                card.innerHTML = highlighted;
+                resultsArea.appendChild(card);
             }
         });
 
-        if (resultsContainer.innerHTML === "") {
-            resultsContainer.innerHTML = `<div style="text-align:center; color:#555; margin-top:50px;">দুঃখিত, এই তথ্যটি ডাটাবেসে পাওয়া যায়নি।</div>`;
+        if (resultsArea.innerHTML === "") {
+            resultsArea.innerHTML = "<div style='text-align:center; color:#555; margin-top:50px;'>কোনো তথ্য পাওয়া যায়নি।</div>";
         }
     }
 
-    // ৩. ইভেন্ট লিসেনার
-    let debounceTimer;
+    // ৩. ইনপুট ইভেন্ট হ্যান্ডলার
+    let timer;
     document.getElementById('scanInput').addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(runScan, 300);
+        clearTimeout(timer);
+        timer = setTimeout(performSearch, 300);
     });
 
-    // ইনভোক
-    initializeScanner();
+    // সিস্টেম চালু করা
+    loadPDF();
 </script>
 
 </body>
