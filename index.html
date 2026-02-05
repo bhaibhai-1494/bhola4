@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber-Scan Pro | Smart Dot-to-Dot Scanner</title>
+    <title>Cyber-Scan Pro | Advanced PDF Search</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
@@ -52,12 +52,6 @@
             font-size: 1.4rem;
             padding: 12px 0;
             outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-bottom-width: 3px;
-            text-shadow: 0 0 8px var(--neon);
         }
 
         .status {
@@ -73,7 +67,6 @@
             margin-top: 30px;
         }
 
-        /* ডট-টু-ডট ডাটা কার্ড */
         .data-card {
             background: var(--card-bg);
             border-left: 6px solid var(--neon);
@@ -83,8 +76,7 @@
             line-height: 2;
             font-size: 1.2rem;
             animation: slideIn 0.4s ease forwards;
-            position: relative;
-            overflow: hidden;
+            white-space: pre-wrap;
         }
 
         @keyframes slideIn {
@@ -93,24 +85,11 @@
         }
 
         .highlight {
-            background: rgba(0, 243, 255, 0.35);
+            background: rgba(0, 243, 255, 0.4);
             color: #fff;
             padding: 2px 4px;
             border-radius: 4px;
             font-weight: bold;
-            border: 1px solid var(--neon);
-        }
-
-        .card-meta {
-            display: block;
-            font-size: 0.7rem;
-            color: var(--neon);
-            margin-bottom: 15px;
-            opacity: 0.6;
-        }
-
-        ::placeholder {
-            color: rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
@@ -119,9 +98,8 @@
 <div class="container">
     <div class="search-area">
         <input type="text" id="scanInput" placeholder="জন্ম তারিখ (২৫/০৫/২০০৫) বা আইডি লিখে সার্চ করুন..." autocomplete="off">
-        <div id="status" class="status">Initializing Neural Index...</div>
+        <div id="status" class="status">Initializing Scanner...</div>
     </div>
-
     <div id="results" class="results"></div>
 </div>
 
@@ -129,9 +107,8 @@
     const pdfjsLib = window['pdfjs-dist/build/pdf'];
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-    let indexedBlocks = []; // এখানে ডট দিয়ে বিভক্ত করা প্রতিটি ব্লক জমা থাকবে
+    let indexedBlocks = []; 
 
-    // ১. PDF লোড এবং 'ডট' অনুযায়ী ডাটা প্রসেসিং
     async function initializeScanner() {
         const statusDisplay = document.getElementById('status');
         try {
@@ -141,24 +118,22 @@
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const content = await page.getTextContent();
-                
-                // সব টেক্সট আইটেমকে একটি লাইনে নিয়ে আসা
                 rawText += content.items.map(item => item.str).join(" ") + " ";
-                statusDisplay.innerText = `সিস্টেম স্ক্যানিং: ${Math.round((i/pdf.numPages)*100)}%`;
+                statusDisplay.innerText = `স্ক্যানিং: ${Math.round((i/pdf.numPages)*100)}%`;
             }
 
-            // টেক্সটকে ক্লিন করা এবং ডট (.) চিহ্ন দিয়ে ছোট ছোট ব্লকে ভাগ করা
-            // এটি নিশ্চিত করে যে প্রতিটি ব্লক একটি পূর্ণাঙ্গ ইনফরমেশন সেট (১১৪৯. নাম... ইত্যাদি)
-            indexedBlocks = rawText.split('.').map(block => block.trim()).filter(block => block.length > 0);
-            
-            statusDisplay.innerText = "সিস্টেম রেডি | " + indexedBlocks.length + " টি ডাটা ব্লক ইনডেক্স করা হয়েছে";
+            // আপনার রিকোয়েস্ট অনুযায়ী নির্দিষ্ট বাউন্ডারি লজিক:
+            // এটি ৪টি সংখ্যা+ডট দিয়ে শুরু এবং "Ïভালা" তে শেষ হওয়া ডাটা ব্লক খুঁজে বের করবে।
+            const pattern = /(\d{4}\.[\s\S]*?Ïভালা)/g;
+            indexedBlocks = rawText.match(pattern) || [];
+
+            statusDisplay.innerText = "সিস্টেম রেডি | " + indexedBlocks.length + " টি প্রোফাইল পাওয়া গেছে";
         } catch (error) {
-            statusDisplay.innerText = "ত্রুটি: pdfs/dhaka_male.pdf ফাইলটি পাওয়া যায়নি!";
+            statusDisplay.innerText = "ত্রুটি: pdfs/dhaka_male.pdf পাওয়া যায়নি!";
             console.error(error);
         }
     }
 
-    // ২. সার্চ লজিক (পূর্বের ডট থেকে পরের ডট পর্যন্ত)
     function runScan() {
         const query = document.getElementById('scanInput').value.trim();
         const resultsContainer = document.getElementById('results');
@@ -166,39 +141,34 @@
 
         if (query.length < 3) return;
 
-        indexedBlocks.forEach((block, index) => {
+        indexedBlocks.forEach((block) => {
             if (block.includes(query)) {
-                // কার্ড তৈরি
                 const card = document.createElement('div');
                 card.className = 'data-card';
                 
-                // সার্চ কি-ওয়ার্ড হাইলাইট করা
+                // সার্চ কি-ওয়ার্ড হাইলাইট করার জন্য Regex
+                const safeQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
                 const highlightedContent = block.replace(
-                    new RegExp(query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), 
+                    new RegExp(safeQuery, 'g'), 
                     `<span class="highlight">${query}</span>`
                 );
 
-                card.innerHTML = `
-                    <span class="card-meta">BLOCK REFERENCE ID: #${index + 1001}</span>
-                    <div class="content">${highlightedContent}.</div>
-                `;
+                card.innerHTML = `<div class="content">${highlightedContent}</div>`;
                 resultsContainer.appendChild(card);
             }
         });
 
         if (resultsContainer.innerHTML === "") {
-            resultsContainer.innerHTML = `<div style="text-align:center; color:#555; margin-top:50px;">দুঃখিত, এই তথ্যটি ডাটাবেসে পাওয়া যায়নি।</div>`;
+            resultsContainer.innerHTML = `<div style="text-align:center; color:#555;">কোনো তথ্য পাওয়া যায়নি।</div>`;
         }
     }
 
-    // ৩. ইভেন্ট লিসেনার
     let debounceTimer;
     document.getElementById('scanInput').addEventListener('input', () => {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(runScan, 300);
     });
 
-    // ইনভোক
     initializeScanner();
 </script>
 
