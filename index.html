@@ -50,6 +50,12 @@ input {
     font-size:1.3rem;
     padding:10px 0;
     outline:none;
+    font-family:'SolaimanLipi', sans-serif;
+}
+
+input::placeholder {
+    color:#888;
+    font-family:'SolaimanLipi', sans-serif;
 }
 
 .status {
@@ -88,8 +94,8 @@ input {
 .voter {
     color:var(--neon);
     font-weight:bold;
-    margin-bottom:10px;
     display:block;
+    margin-bottom:10px;
 }
 
 @keyframes fadeIn {
@@ -121,6 +127,16 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 let fullPdfText = "";
 
+/* ===== DIGIT CONVERTER ===== */
+const engToBn = {
+    "0":"০","1":"১","2":"২","3":"৩","4":"৪",
+    "5":"৫","6":"৬","7":"৭","8":"৮","9":"৯"
+};
+
+function convertToBanglaDigits(value) {
+    return value.replace(/[0-9]/g, d => engToBn[d]);
+}
+
 /* ===== LOAD PDF ===== */
 async function initScanner() {
     const status = document.getElementById("status");
@@ -143,7 +159,7 @@ async function initScanner() {
     }
 }
 
-/* ===== SEARCH LOGIC (MULTIPLE RESULTS) ===== */
+/* ===== SEARCH LOGIC ===== */
 function handleSearch() {
     const query = document.getElementById("searchInput").value.trim();
     const results = document.getElementById("results");
@@ -157,21 +173,17 @@ function handleSearch() {
     while ((pos = fullPdfText.indexOf(query, pos)) !== -1) {
         found = true;
 
-        /* record start */
         let start = fullPdfText.lastIndexOf(" Ïভালা", pos);
         start = start === -1 ? 0 : start + 1;
 
-        /* record end */
         let end = fullPdfText.indexOf(" Ïভালা", pos + query.length);
         if (end === -1) end = pos + 300;
 
         let record = fullPdfText.substring(start, end).trim();
 
-        /* voter number (4 digits before dot) */
         let voterMatch = record.match(/(\d{4})\s*\./);
         let voterNo = voterMatch ? voterMatch[1] : "N/A";
 
-        /* highlight search */
         const safe = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         record = record.replace(
             new RegExp(safe, "g"),
@@ -196,14 +208,19 @@ function handleSearch() {
     }
 }
 
-document.getElementById("searchInput")
-    .addEventListener("input", handleSearch);
+/* ===== INPUT LISTENER (AUTO BANGLA DIGIT) ===== */
+const input = document.getElementById("searchInput");
+
+input.addEventListener("input", () => {
+    const cursor = input.selectionStart;
+    const converted = convertToBanglaDigits(input.value);
+    input.value = converted;
+    input.setSelectionRange(cursor, cursor);
+    handleSearch();
+});
 
 initScanner();
 </script>
 
 </body>
 </html>
-
-
-
