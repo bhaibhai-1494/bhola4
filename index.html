@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber-Scan | Extended Data</title>
+    <title>Cyber-Scan | Smart Data Extractor</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
@@ -13,38 +13,26 @@
         :root {
             --neon-blue: #00f3ff;
             --bg-dark: #020205;
-            --card-bg: rgba(255, 255, 255, 0.05);
+            --glass: rgba(0, 243, 255, 0.08);
         }
 
         body {
             margin: 0;
-            font-family: 'SolaimanLipi', sans-serif;
+            font-family: 'SolaimanLipi', Arial, sans-serif;
             background: var(--bg-dark);
             color: #e0e0e0;
             display: flex;
             justify-content: center;
-            background-image: radial-gradient(circle at 50% 50%, #0a101a 0%, #020205 100%);
         }
 
         .container {
-            margin-top: 5vh;
             width: 95%;
-            max-width: 1000px;
-            padding-bottom: 100px;
+            max-width: 900px;
+            margin-top: 5vh;
+            padding-bottom: 50px;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: var(--neon-blue);
-            text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
-            letter-spacing: 5px;
-        }
-
-        .search-box-container {
+        .search-area {
             position: sticky;
             top: 20px;
             z-index: 100;
@@ -53,6 +41,7 @@
             border: 1px solid var(--neon-blue);
             border-radius: 15px;
             backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
         }
 
         input {
@@ -62,87 +51,84 @@
             border-bottom: 2px solid var(--neon-blue);
             padding: 15px;
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             outline: none;
+        }
+
+        .status {
+            font-size: 0.75rem;
+            color: var(--neon-blue);
+            margin-top: 10px;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 2px;
         }
 
         .results { margin-top: 30px; }
 
-        /* NEW EXPANDED CARD DESIGN */
+        /* --- SMART CARD DESIGN --- */
         .card {
-            background: var(--card-bg);
-            border: 1px solid rgba(0, 243, 255, 0.1);
-            border-radius: 12px;
-            padding: 25px;
+            background: var(--glass);
+            border-left: 5px solid var(--neon-blue);
+            border-radius: 8px;
+            padding: 20px;
             margin-bottom: 20px;
-            transition: 0.3s;
+            animation: slideIn 0.3s ease-out;
         }
 
-        .card:hover {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-
-        .doc-tag {
+        .id-badge {
+            display: inline-block;
             background: var(--neon-blue);
-            color: black;
-            padding: 2px 10px;
-            font-size: 0.7rem;
-            font-weight: bold;
+            color: #000;
+            padding: 2px 12px;
             border-radius: 4px;
-            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
-        .info-grid {
+        .data-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
 
-        .info-item {
-            background: rgba(0,0,0,0.3);
+        .data-item {
+            background: rgba(255,255,255,0.03);
             padding: 10px;
-            border-radius: 6px;
+            border-radius: 5px;
         }
 
-        .info-label {
+        .label {
             color: var(--neon-blue);
             font-size: 0.8rem;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
-        .info-value { font-size: 1.1rem; }
+        .value { font-size: 1.1rem; color: #fff; }
 
-        .highlight {
-            background: rgba(0, 243, 255, 0.3);
-            color: white;
-            padding: 0 4px;
-            border-radius: 3px;
+        .full-raw {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: #888;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 10px;
         }
 
-        .status { color: var(--neon-blue); font-size: 0.8rem; margin-top: 10px; text-align: center; }
+        .highlight { background: rgba(0, 243, 255, 0.4); color: white; border-radius: 2px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1>NEURAL DATA SCANNER</h1>
-    </div>
-
-    <div class="search-box-container">
-        <input id="searchBox" placeholder="টাইপ করুন (উদাঃ নাম, মোবাইল নম্বর বা এনআইডি)..." autocomplete="off">
-        <div id="status" class="status">Initializing...</div>
+    <div class="search-area">
+        <input id="searchBox" placeholder="নাম, আইডি বা জন্ম তারিখ দিয়ে খুঁজুন..." autocomplete="off">
+        <div id="status" class="status">Initializing Neural Index...</div>
     </div>
 
     <div id="results" class="results"></div>
@@ -153,86 +139,105 @@ const pdfjsLib = window['pdfjs-dist/build/pdf'];
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
 const pdfCollection = [
-    { name:"ঢাকা জোন ১", url:"pdfs/dhaka_male.pdf", area:"Dhaka" },
-    { name:"চট্টগ্রাম জোন ২", url:"pdfs/ctg_all.pdf", area:"Chittagong" }
+    { name: "Main Database", url: "pdfs/data.pdf" } // আপনার পিডিএফ ফাইলের নাম দিন
 ];
 
 let searchIndex = [];
 
-const cleanText = t => t.normalize("NFC").replace(/\s+/g," ").trim();
+// টেক্সট ক্লিন করার ফাংশন
+const normalizeText = t => t.normalize("NFC").replace(/\s+/g," ").trim();
 
 async function init() {
+    const status = document.getElementById("status");
     for(const doc of pdfCollection) {
         try {
             const pdf = await pdfjsLib.getDocument(doc.url).promise;
-            let content = "";
+            let fullContent = "";
             for(let i=1; i<=pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
-                const textObj = await page.getTextContent();
-                content += textObj.items.map(item => item.str).join(" ") + " ";
+                const text = await page.getTextContent();
+                fullContent += text.items.map(s => s.str).join(" ") + " ";
             }
-            searchIndex.push({...doc, content: cleanText(content)});
-        } catch(e) { console.error("Failed:", doc.url); }
+            searchIndex.push({ ...doc, content: normalizeText(fullContent) });
+        } catch(e) { console.error("Load fail:", doc.url); }
     }
-    document.getElementById("status").innerText = "DATABASE ONLINE | " + searchIndex.length + " FILES READY";
+    status.innerText = "DATABASE ONLINE | READY FOR SCAN";
+}
+
+// এই ফাংশনটি ডাটার ভেতর থেকে নির্দিষ্ট অংশ খুঁজে বের করে (Smart Parser)
+function extractField(chunk, label, stopAt) {
+    const regex = new RegExp(`${label}(.*?)(?=${stopAt}|$)`, "i");
+    const match = chunk.match(regex);
+    return match ? match[1].replace(/[:]/g, "").trim() : "পাওয়া যায়নি";
 }
 
 function runSearch() {
-    const q = cleanText(document.getElementById("searchBox").value);
+    const q = normalizeText(document.getElementById("searchBox").value);
     const resultsContainer = document.getElementById("results");
     resultsContainer.innerHTML = "";
 
-    if(q.length < 3) return;
+    if(q.length < 2) return;
 
     searchIndex.forEach(doc => {
-        if(doc.content.includes(q)) {
-            const index = doc.content.indexOf(q);
+        // একাধিক রেজাল্ট পাওয়ার জন্য লুপ
+        let startIndex = 0;
+        while ((startIndex = doc.content.indexOf(q, startIndex)) !== -1) {
             
-            // EXTRACT MORE INFO: Capture a larger window around the hit
-            // We take 150 chars before and 250 chars after to find related details
-            const contextStart = Math.max(0, index - 100);
-            const contextEnd = Math.min(doc.content.length, index + 300);
-            const contextChunk = doc.content.substring(contextStart, contextEnd);
+            // রেজাল্টের আশেপাশে ৫০০ ক্যারেক্টার নেওয়া হচ্ছে ডাটা পার্স করার জন্য
+            const blockStart = Math.max(0, startIndex - 200);
+            const blockEnd = Math.min(doc.content.length, startIndex + 400);
+            const chunk = doc.content.substring(blockStart, blockEnd);
 
-            // HIGHLIGHTING
-            const highlightedContent = contextChunk.replace(new RegExp(q, 'g'), `<span class="highlight">${q}</span>`);
+            // ১. আইডি/সিরিয়াল বের করা (সংখ্যার প্যাটার্ন দিয়ে)
+            const idMatch = chunk.match(/(\d{4})\./); 
+            const id = idMatch ? idMatch[1] : "---";
 
-            // RENDER EXPANDED CARD
+            // ২. স্মার্ট ফিল্ড এক্সট্রাকশন (আপনার দেওয়া স্যাম্পল অনুযায়ী)
+            const name = extractField(chunk, "নাম", "Ïভাটার নং");
+            const father = extractField(chunk, "িপতা", "মাতা");
+            const phone = extractField(chunk, "Ïভাটার নং", "িপতা");
+            const address = extractField(chunk, "িঠকানা", "---");
+
             resultsContainer.innerHTML += `
                 <div class="card">
-                    <div class="card-header">
-                        <span style="color:white; font-weight:bold">${doc.name}</span>
-                        <span class="doc-tag">${doc.area}</span>
-                    </div>
+                    <div class="id-badge">ID: ${id}</div>
                     
-                    <div class="snippet">
-                        <span class="info-label">Matching Context Found:</span>
-                        ...${highlightedContent}...
+                    <div class="data-grid">
+                        <div class="data-item">
+                            <span class="label">নাম:</span>
+                            <span class="value">${name}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="label">পিতার নাম:</span>
+                            <span class="value">${father}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="label">ভোটার নং:</span>
+                            <span class="value">${phone}</span>
+                        </div>
+                        <div class="data-item">
+                            <span class="label">ঠিকানা:</span>
+                            <span class="value">${address}</span>
+                        </div>
                     </div>
 
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">File Reference</span>
-                            <span class="info-value">#${doc.area.toUpperCase()}-${Math.floor(Math.random()*9000)+1000}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Data Integrity</span>
-                            <span class="info-value">Verified (OCR Scan)</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Search Query</span>
-                            <span class="info-value" style="color:var(--neon-blue)">${q}</span>
-                        </div>
+                    <div class="full-raw">
+                        <span class="label">Raw Match Snippet:</span>
+                        ...${chunk.replace(q, `<span class="highlight">${q}</span>`)}...
                     </div>
                 </div>
             `;
+
+            startIndex += q.length; // পরবর্তী রেজাল্টের জন্য ইনডেক্স আপডেট
+            if(resultsContainer.children.length > 10) break; // পারফরম্যান্সের জন্য লিমিট
         }
     });
 }
 
+let timer;
 document.getElementById("searchBox").addEventListener("input", () => {
-    clearTimeout(window.t);
-    window.t = setTimeout(runSearch, 300);
+    clearTimeout(timer);
+    timer = setTimeout(runSearch, 300);
 });
 
 init();
