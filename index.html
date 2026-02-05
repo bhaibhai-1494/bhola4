@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bangla PDF AI Search</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <style>
+        :root {
+            --neon: #00f3ff;
+            --bg: #080a0f;
+            --card-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #e0e0e0;
+            font-family: 'SolaimanLipi', 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .hero {
+            margin-top: 80px;
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            color: var(--neon);
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+
+        input#searchBox {
+            width: 100%;
+            padding: 18px 25px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--neon);
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input#searchBox:focus {
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .status-bar {
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .results-area {
+            width: 90%;
+            max-width: 800px;
+            margin-top: 40px;
+            padding-bottom: 50px;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            border-left: 3px solid var(--neon);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 0 15px 15px 0;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .result-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--neon);
+            font-size: 1rem;
+        }
+
+        .snippet {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #bbb;
+        }
+
+        .highlight {
+            color: #fff;
+            background: rgba(0, 243, 255, 0.3);
+            font-weight: bold;
+            padding: 0 4px;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>CORE SEARCH</h1>
+    <div class="search-container">
+        <input type="text" id="searchBox" placeholder="পিডিএফ এর ভেতরে খুঁজুন (যেমন: নাম বা এলাকা)...">
+    </div>
+    <div id="loadingStatus" class="status-bar">সিস্টেম লোড হচ্ছে...</div>
+</div>
+
+<div id="resultsList" class="results-area"></div>
+
+<script>
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    // --- CONFIGURATION: LIST YOUR PDFS HERE ---
+    const pdfFiles = [
+        { name: "Document 01", path: "pdfs/file1.pdf" },
+        { name: "Document 02", path: "pdfs/file2.pdf" },
+        { name: "Document 03", path: "pdfs/file3.pdf" }
+    ];
+
+    let pdfData = [];
+
+    // Load and index all PDF contents on startup
+    async function initializeSearch() {
+        const status = document.getElementById('loadingStatus');
+        
+        for (let file of pdfFiles) {
+            try {
+                const text = await extractText(file.path);
+                pdfData.push({ ...file, content: text });
+            } catch (e) {
+                console.error("Error loading: " + file.path);
+            }
+        }
+        
+        status.innerText = `${pdfData.length}টি পিডিএফ ইনডেক্স করা হয়েছে। এখন অনুসন্ধান করুন।`;
+    }
+
+    async function extractText(url) {
+        const pdf = await pdfjsLib.getDocument(url).promise;
+        let content = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            content += textContent.items.map(item => item.str).join(" ") + " ";
+        }
+        return content;
+    }
+
+    function search() {
+        const query = document.getElementById('searchBox').value.trim();
+        const resultsContainer = document.getElementById('resultsList');
+        resultsContainer.innerHTML = "";
+
+        if (query.length < 2) return;
+
+        pdfData.forEach(doc => {
+            if (doc.content.includes(query)) {
+                // Find a snippet (approx 100 characters around the search term)
+                const index = doc.content.indexOf(query);
+                const start = Math.max(0, index - 40);
+                const end = Math.min(doc.content.length, index + query.length + 60);
+                let snippet = doc.content.substring(start, end);
+                
+                // Highlight the query
+                const highlightedSnippet = snippet.replace(new RegExp(query, 'g'), `<span class="highlight">${query}</span>`);
+
+                const card = document.createElement('div');
+                card.className = 'result-card';
+                card.innerHTML = `
+                    <h3>${doc.name}</h3>
+                    <div class="snippet">...${highlightedSnippet}...</div>
+                    <a href="${doc.path}" target="_blank" style="color:var(--neon); font-size: 0.8rem; text-decoration: none; display: block; margin-top: 10px;">পিডিএফ টি দেখুন →</a>
+                `;
+                resultsContainer.appendChild(card);
+            }
+        });
+    }
+
+    document.getElementById('searchBox').addEventListener('input', search);
+    
+    // Start initializing
+    initializeSearch();
+</script>
+
+</body>
+</html>
