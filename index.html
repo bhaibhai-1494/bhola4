@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber-Scan Pro | Dot-to-Ïভালা</title>
+    <title>Cyber-Scan Pro | Full Access</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
@@ -31,6 +31,7 @@
             max-width: 850px;
         }
 
+        /* স্টিকি সার্চ বার */
         .search-area {
             position: sticky;
             top: 10px;
@@ -63,25 +64,22 @@
             text-transform: uppercase;
         }
 
-        .results {
-            margin-top: 30px;
-        }
-
-        .data-card {
+        /* ডাটা কার্ড স্টাইল */
+        .result-card {
             background: var(--card-bg);
             border-left: 6px solid var(--neon);
             padding: 25px;
-            margin-bottom: 20px;
+            margin-top: 25px;
             border-radius: 0 15px 15px 0;
             line-height: 1.8;
             font-size: 1.2rem;
             animation: slideIn 0.4s ease forwards;
-            white-space: pre-wrap;
+            white-space: pre-wrap; /* নতুন লাইন বজায় রাখবে */
         }
 
         @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .highlight {
@@ -92,13 +90,13 @@
             font-weight: bold;
         }
 
-        .error-msg {
+        .error-box {
             color: #ff4d4d;
             background: rgba(255, 77, 77, 0.1);
             padding: 15px;
             border-radius: 8px;
             border: 1px solid #ff4d4d;
-            text-align: left;
+            margin-top: 15px;
             font-size: 0.9rem;
         }
     </style>
@@ -107,11 +105,11 @@
 
 <div class="container">
     <div class="search-area">
-        <input type="text" id="scanInput" placeholder="এখানে টাইপ করুন (উদা: ২৫/০৫/২০০৫)..." autocomplete="off">
-        <div id="status" class="status">সিস্টেম চেক করা হচ্ছে...</div>
+        <input type="text" id="scanInput" placeholder="অনুসন্ধান করুন (উদাঃ নাম বা জন্ম তারিখ)..." autocomplete="off">
+        <div id="status" class="status">সিস্টেম ইনিশিয়ালাইজ হচ্ছে...</div>
     </div>
 
-    <div id="results" class="results"></div>
+    <div id="results"></div>
 </div>
 
 <script>
@@ -119,44 +117,48 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
     let extractedBlocks = [];
-    const FILE_PATH = 'pdfs/haka_male.pdf'; // আপনার ফাইল পাথ আপডেট করা হয়েছে
+    const FILE_PATH = 'pdfs/dhaka_male.pdf'; // আপনার পিডিএফ লোকেশন
 
-    async function initializeScanner() {
+    async function startScanner() {
         const statusDisplay = document.getElementById('status');
         try {
+            // ১. পিডিএফ লোড করা
             const loadingTask = pdfjsLib.getDocument(FILE_PATH);
             const pdf = await loadingTask.promise;
-            let rawText = "";
+            let fullRawText = "";
 
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const content = await page.getTextContent();
-                rawText += content.items.map(item => item.str).join(" ") + " ";
+                // টেক্সট আইটেমগুলো যুক্ত করা
+                fullRawText += content.items.map(item => item.str).join(" ") + " ";
                 statusDisplay.innerText = `স্ক্যানিং: ${Math.round((i/pdf.numPages)*100)}%`;
             }
 
-            // ৪টি সংখ্যা এবং ডট থেকে শুরু করে "Ïভালা" পর্যন্ত ডাটা আলাদা করা
+            // ২. নির্দিষ্ট বাউন্ডারি অনুযায়ী ডাটা ফিল্টার করা
+            // প্যাটার্ন: ৪টি সংখ্যা এবং ডট (\d{4}\.) থেকে শুরু করে Ïভালা পর্যন্ত
             const pattern = /(\d{4}\.[\s\S]*?Ïভালা)/g;
-            extractedBlocks = rawText.match(pattern) || [];
+            extractedBlocks = fullRawText.match(pattern) || [];
 
             if (extractedBlocks.length === 0) {
-                statusDisplay.innerText = "সতর্কতা: কোনো সঠিক ডাটা ব্লক পাওয়া যায়নি!";
+                statusDisplay.innerText = "সতর্কতা: কোনো সঠিক ডাটা ব্লক খুঁজে পাওয়া যায়নি!";
             } else {
-                statusDisplay.innerText = `সিস্টেম অনলাইন | ${extractedBlocks.length} টি প্রোফাইল প্রস্তুত`;
+                statusDisplay.innerText = `সিস্টেম অনলাইন | মোট ${extractedBlocks.length} টি তথ্য প্রস্তুত`;
             }
 
         } catch (error) {
-            console.error("PDF Loading Error:", error);
+            console.error(error);
             statusDisplay.innerHTML = `
-                <div class="error-msg">
-                    <b>ফাইলটি পাওয়া যাচ্ছে না!</b><br>
+                <div class="error-box">
+                    <b>ফাইল লোড এরর!</b><br>
                     পাথ চেক করুন: <b>${FILE_PATH}</b><br>
-                    নিশ্চিত করুন আপনি <b>Live Server</b> ব্যবহার করছেন এবং ফাইলের বানান সঠিক আছে।
+                    নিশ্চিত করুন আপনি <b>Live Server</b> ব্যবহার করছেন।
                 </div>`;
         }
     }
 
-    function runScan() {
+    // ৩. সার্চ ফাংশন
+    function runSearch() {
         const query = document.getElementById('scanInput').value.trim();
         const resultsArea = document.getElementById('results');
         resultsArea.innerHTML = "";
@@ -166,9 +168,11 @@
         extractedBlocks.forEach(block => {
             if (block.includes(query)) {
                 const card = document.createElement('div');
-                card.className = 'data-card';
+                card.className = 'result-card';
                 
-                const regex = new RegExp(query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g');
+                // সার্চ শব্দটি হাইলাইট করার লজিক
+                const safeQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                const regex = new RegExp(safeQuery, 'g');
                 const highlighted = block.replace(regex, `<span class="highlight">${query}</span>`);
                 
                 card.innerHTML = highlighted;
@@ -177,13 +181,15 @@
         });
     }
 
-    let debounce;
+    // ইনপুট লিসেনার (টাইপ করার সাথে সাথে সার্চ হবে)
+    let searchTimer;
     document.getElementById('scanInput').addEventListener('input', () => {
-        clearTimeout(debounce);
-        debounce = setTimeout(runScan, 300);
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(runSearch, 300);
     });
 
-    initializeScanner();
+    // সিস্টেম রান করা
+    startScanner();
 </script>
 
 </body>
