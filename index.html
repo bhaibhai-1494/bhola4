@@ -55,7 +55,6 @@ input {
 
 input::placeholder {
     color:#888;
-    font-family:'SolaimanLipi', sans-serif;
 }
 
 .status {
@@ -79,13 +78,11 @@ input::placeholder {
 
 .data-content {
     font-size:1.15rem;
-    color:#fff;
     white-space:pre-wrap;
 }
 
 .highlight {
     background:rgba(0,243,255,.45);
-    color:#fff;
     padding:0 3px;
     border-radius:3px;
     font-weight:bold;
@@ -137,6 +134,38 @@ function convertToBanglaDigits(value) {
     return value.replace(/[0-9]/g, d => engToBn[d]);
 }
 
+/* ===== AUTO BANGLA FIXER (NEW) ===== */
+const fixMap = {
+    "Ïমাঃ": "মোঃ",
+    "Ïভাটার নং": "ভোটার নং",
+    "Ï": "ে",
+    "জĥ তািরখ": "জন্ম তারিখ",
+    "িপতা": "পিতা",
+    "িঠকানা": "ঠিকানা",
+    "উēর": "উত্তর",
+    "মাęাজ": "মাদ্রাজ",
+    "চর ফËাশন": "চরফ্যাশন",
+    "Řিমক": "শ্রমিক",
+    "বËবসা": "ব্যবসা",
+    "ĥ": "ম",
+    "Ë": "্য",
+    "Ř": "শ",
+    "ē": "ত",
+    "ę": "দ"
+};
+
+function autoFixBangla(text) {
+    for (const bad in fixMap) {
+        text = text.replaceAll(bad, fixMap[bad]);
+    }
+
+    return text
+        .replace(/\s{2,}/g, " ")
+        .replace(/ ,/g, ",")
+        .replace(/ \./g, ".")
+        .trim();
+}
+
 /* ===== LOAD PDF ===== */
 async function initScanner() {
     const status = document.getElementById("status");
@@ -181,6 +210,9 @@ function handleSearch() {
 
         let record = fullPdfText.substring(start, end).trim();
 
+        /* 🔥 AUTO FIX APPLIED HERE */
+        record = autoFixBangla(record);
+
         let voterMatch = record.match(/(\d{4})\s*\./);
         let voterNo = voterMatch ? voterMatch[1] : "N/A";
 
@@ -198,7 +230,6 @@ function handleSearch() {
         `;
 
         results.appendChild(card);
-
         pos += query.length;
     }
 
@@ -208,13 +239,12 @@ function handleSearch() {
     }
 }
 
-/* ===== INPUT LISTENER (AUTO BANGLA DIGIT) ===== */
+/* ===== INPUT LISTENER ===== */
 const input = document.getElementById("searchInput");
 
 input.addEventListener("input", () => {
     const cursor = input.selectionStart;
-    const converted = convertToBanglaDigits(input.value);
-    input.value = converted;
+    input.value = convertToBanglaDigits(input.value);
     input.setSelectionRange(cursor, cursor);
     handleSearch();
 });
