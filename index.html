@@ -209,7 +209,7 @@ function handleSearch() {
     while ((pos = fullPdfText.indexOf(query, pos)) !== -1) {
         found = true;
 
-        let start = fullPdfText.lastIndexOf(" Ïভালা" "(", pos);
+        let start = fullPdfText.lastIndexOf(" Ïভালা", pos);
         start = start === -1 ? 0 : start + 1;
 
         let end = fullPdfText.indexOf(" Ïভালা", pos + query.length);
@@ -261,6 +261,7 @@ initScanner();
 
 </body>
 </html>
+
 
 
 
