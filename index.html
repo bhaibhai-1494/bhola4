@@ -58,7 +58,6 @@
 
         select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
 
-        /* New Search Button Style */
         #searchBtn {
             width: 100%; padding: 12px; background: var(--primary);
             color: white; border: none; border-radius: 8px;
@@ -143,6 +142,8 @@ const fixMap = {
     "Ï": "ি", "ĥ": "ম", "Ë": "্য", "Ř": "শ", "ē": "ত", "ę": "দ", " িপশা:": "পেশা:", "Ïবসরকারী চাƣরী": "বেসরকারী চাকুরী","মিýল": "মঞ্জিল",
     " িবসরকারী চাƣরী": "বেসরকারী চাকুরী", "পাটÎ": "পার্ট", " িরাড": "রোড", "Ō": "ল্ল", "Ƅ": "শু", "Ñ": "ক্ক", "উতর": "উত্তর",
     
+    // Formatting Labels
+    "নাম:": "<br><span class='label-text'>নাম:</span>",
     "ভোটার নং:": "<br><span class='label-text'>ভোটার নং:</span>",
     "পিতা:": "<br><span class='label-text'>পিতা:</span>",
     "মাতা:": "<br><span class='label-text'>মাতা:</span>",
@@ -179,7 +180,10 @@ async function loadPDF(path) {
             bar.style.width = (i / pdf.numPages * 100) + "%";
         }
 
-        records = raw.split("Ïভালা").map(r => fixBangla(r)).filter(r => r.length > 20);
+        // Updated Splitting Logic: Splits before any digits (En or Bn) followed by a dot
+        const splitPattern = /(?=\d+\.)|(?=[০-৯]+\.)/g;
+        records = raw.split(splitPattern).map(r => fixBangla(r)).filter(r => r.length > 20);
+        
         s.textContent = "ডেটাবেস প্রস্তুত: " + toBn(String(records.length)) + " জন";
     } catch (e) {
         s.textContent = "ব্যর্থ হয়েছে";
@@ -220,7 +224,6 @@ function search() {
     }
 }
 
-// Download functionality
 document.getElementById("downloadBtn").onclick = () => {
     const results = document.querySelectorAll(".result-card");
     let content = "Cyber-Scan Pro Search Results\n" + "=".repeat(30) + "\n\n";
@@ -236,19 +239,16 @@ document.getElementById("downloadBtn").onclick = () => {
     link.click();
 };
 
-// Input handling (Updated to search on Button Click)
 document.getElementById("searchInput").oninput = e => {
     const cursor = e.target.selectionStart;
     e.target.value = toBn(e.target.value);
     e.target.setSelectionRange(cursor, cursor);
 };
 
-// Search trigger on Button Click
 document.getElementById("searchBtn").onclick = () => {
     search();
 };
 
-// Search trigger on Enter Key
 document.getElementById("searchInput").onkeydown = e => {
     if (e.key === "Enter") {
         search();
