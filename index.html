@@ -45,6 +45,13 @@
             z-index: 100;
         }
 
+        .selector-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
         select, input {
             width: 100%; background: #0f172a;
             border: 1px solid var(--border); border-radius: 8px;
@@ -105,10 +112,24 @@
         <div id="status" class="status">সিস্টেম প্রস্তুত করা হচ্ছে...</div>
         <div class="progress"><span id="bar"></span></div>
         
-        <select id="pdfSelect">
-            <option value="pdfs/8n_male.pdf">৮নং ওয়ার্ড – পুরুষ</option>
-            <option value="pdfs/8n_female.pdf">৮নং ওয়ার্ড – মহিলা</option>
-        </select>
+        <div class="selector-group">
+            <select id="wardSelect">
+                <option value="1">ওয়ার্ড নং-০১</option>
+                <option value="2">ওয়ার্ড নং-০২</option>
+                <option value="3">ওয়ার্ড নং-০৩</option>
+                <option value="4">ওয়ার্ড নং-০৪</option>
+                <option value="5">ওয়ার্ড নং-০৫</option>
+                <option value="6">ওয়ার্ড নং-০৬</option>
+                <option value="7">ওয়ার্ড নং-০৭</option>
+                <option value="8" selected>ওয়ার্ড নং-০৮</option>
+                <option value="9">ওয়ার্ড নং-০৯</option>
+            </select>
+
+            <select id="genderSelect">
+                <option value="male">পুরুষ</option>
+                <option value="female">মহিলা</option>
+            </select>
+        </div>
         
         <input id="searchInput" placeholder="নাম, জন্ম তারিখ অথবা ভোটার নং দিয়ে খুঁজুন..." autocomplete="off">
         <button id="searchBtn">তথ্য খুঁজুন</button>
@@ -142,14 +163,14 @@ const fixMap = {
     "েকা": "কো", "েখা": "খো", "েগা": "গো", "েঘা": "ঘো", "েচা": "চো", "েছা": "ছো", "েজা": "জো", "েঝা": "ঝো",
     "েটা": "টো", "েঠা": "ঠো", "েডা": "ডো", "েঢা": "ঢো", "েণা": "ণো", "েতা": "তো", "েথা": "থো", "েদা": "দো",
     "েধা": "ধো", "েনা": "নো", "েপা": "পো", "েফা": "ফো", "েবা": "বো", "েভা": "ভো", "েমা": "মো", "েযা": "যো",
-    "েরা": "রো", "েলা": "লো", "েশা": "শো", "েষা": "ষো", "েসা": "সো", "েহা": "হো", "েড়া": "ড়ো", "েঢ়া": "ঢ়ো", "েয়া": "য়ো",
+    "েরা": "রো", "েলা": "লো", "েশা": "শো", "েষা": "ষো", "েসা": "সো", "েহা": "হো", "েড়া": "ড়ো", "েঢ়া": "ঢ়ো", "েয়া": "য়ো",
     "েক": "কে", "েখ": "খে", "েগ": "গে", "েঘ": "ঘে", "েঙ": "ঙে",
     "েচ": "চে", "েছ": "ছে", "েজ": "জে", "েঝ": "ঝে", "েঞ": "ঙে",
     "েট": "টে", "েঠ": "ঠে", "েড": "ডে", "েঢ": "ঢে", "েণ": "ণে",
     "েত": "তে", "েথ": "থে", "েদ": "দে", "েধ": "ধে", "েন": "নে",
     "েপ": "পে", "েফ": "ফে", "েব": "বে", "েভ": "ভে", "েম": "মে",
     "েয": "যে", "ের": "রে", "েল": "লে", "েশ": "শে", "েষ": "ষে",
-    "েস": "সে", "েহ": "হে", "েড়": "ড়ে", "েঢ়": "ঢ়ে", "েয়": "য়ে",
+    "েস": "সে", "েহ": "হে", "েড়": "ড়ে", "েঢ়": "ঢ়ে", "েয়": "য়ে",
     "েড়": "ড়ে", "েঢ়": "ঢ়ে",
     
     "েশ্র": "শ্রে", "েপ্র": "প্রে", "েব্র": "ব্রে", "েত্র": "ত্রে", 
@@ -159,16 +180,13 @@ const fixMap = {
     "েল্ল": "ল্লে", "েশ্চ": "শ্চে", "েক্স": "ক্সে",
     "েক্ষ": "ক্ষে",
     
-    "পশো:": "পেশা:", "ছাত্রীী": "ছাত্রী", "বািড়": "বাড়ি", "জম": "জন্ম",
-    "ŏ": "ল্ড", "ũ": "স্ত", "Ģ": "ন্ত", "ওয়াডÎ": "ওয়ার্ড", "ƣ": "কু",
+    "পশো:": "পেশা:", "ছাত্রীী": "ছাত্রী", "বািড়": "বাড়ি", "জম": "জন্ম",
+    "ŏ": "ল্ড", "ũ": "স্ত", "Ģ": "ন্ত", "ওয়াডÎ": "ওয়ার্ড", "ƣ": "কু",
     "সদÎার": "সর্দার", " েবকার,": "বেকার,", "ĩ": "ন্স", "হোিল্ডং নং-": "হোল্ডং নং-",
     " েমহে": "মেহে", "Ŧ": "স্ক", " েব": "বে",
 
     "Ũা": "স্টা", "ĺু": "ব্দু", "মািঝ": "মাঝি", "êী": "ঙ্গী", "Ɔ": "হু", 
-    "২০ চূড়ান্ত ভোটার তালিকা জেলা: উপজেলা: চর ফ্যাশন ইউনিয়ন: ওয়ার্ড নং-০৮ ডাকঘর: চরফ্যাশন ভোটার এলাকার কোড: ০৯১২ ভোটার এলাকার": " ",
-    "নাম: উত্তর মাদাজ -৮নং ওয়ার্ড অংশ (েপৗরসভার সাবেক ৯নং ওয়ার্ড অংশ)": " ",
-    
-    
+    "২০ চূড়ান্ত ভোটার তালিকা জেলা: উপজেলা: চর ফ্যাশন ইউনিয়ন: ওয়ার্ড নং-০৮ ডাকঘর: চরফ্যাশন ভোটার এলাকার কোড: ০৯১২ ভোটার এলাকার নাম: উত্তর মাদাজ -৮নং ওয়ার্ড অংশ (েপৗরসভার সাবেক ৯নং ওয়ার্ড অংশ)": " ",
     
     // Updated Formatting Labels
     "নাম:": "<br><span class='label-text'>নাম:</span>",
@@ -208,8 +226,6 @@ async function loadPDF(path) {
             bar.style.width = (i / pdf.numPages * 100) + "%";
         }
 
-        // Logic Change: This regex splits by finding the gap before one or more digits followed by a dot.
-        // It correctly handles multiple digits (1234.) instead of just the last one.
         const splitPattern = /\s+(?=[\d০-৯]+\.)/g;
         records = raw.split(splitPattern).map(r => fixBangla(r)).filter(r => r.length > 20);
         
@@ -238,7 +254,6 @@ function search() {
     let foundCount = 0;
 
     records.forEach(r => {
-        // Search check works for both Bengali and English digits
         if (r.includes(qBn) || r.includes(qEn)) {
             const highlighted = r.replaceAll(qBn, `<span class="highlight">${qBn}</span>`);
             out.innerHTML += `<div class="result-card"><div class="data-content">${highlighted}</div></div>`;
@@ -252,6 +267,14 @@ function search() {
     } else {
         cnt.textContent = "কোনো তথ্য পাওয়া যায়নি";
     }
+}
+
+// Logic to build the file path based on Ward and Gender
+function updateAndLoad() {
+    const ward = document.getElementById("wardSelect").value;
+    const gender = document.getElementById("genderSelect").value;
+    const path = `pdfs/${ward}n_${gender}.pdf`;
+    loadPDF(path);
 }
 
 document.getElementById("downloadBtn").onclick = () => {
@@ -275,19 +298,12 @@ document.getElementById("searchInput").oninput = e => {
 
 document.getElementById("searchBtn").onclick = () => search();
 document.getElementById("searchInput").onkeydown = e => { if (e.key === "Enter") search(); };
-document.getElementById("pdfSelect").onchange = e => loadPDF(e.target.value);
-window.onload = () => loadPDF(document.getElementById("pdfSelect").value);
+
+// Listen for changes on both dropdowns
+document.getElementById("wardSelect").onchange = () => updateAndLoad();
+document.getElementById("genderSelect").onchange = () => updateAndLoad();
+
+window.onload = () => updateAndLoad();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
