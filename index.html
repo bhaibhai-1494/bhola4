@@ -1,210 +1,241 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cyber-Scan Pro | Professional Record Finder</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber-Scan Pro | Professional Record Finder</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
-<style>
-@import url('https://fonts.cdnfonts.com/css/solaimanlipi');
+    <style>
+        @import url('https://fonts.cdnfonts.com/css/solaimanlipi');
 
-:root {
-    --primary: #007bff;
-    --accent: #00d4ff;
-    --bg-dark: #0f172a;
-    --card-bg: #1e293b;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --border: #334155;
-}
+        :root {
+            --primary: #3b82f6;
+            --accent: #06b6d4;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+        }
 
-body {
-    background: var(--bg-dark);
-    color: var(--text-main);
-    font-family: 'SolaimanLipi', sans-serif;
-    margin: 0; padding: 0;
-    display: flex; justify-content: center;
-    line-height: 1.6;
-}
+        body {
+            background: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'SolaimanLipi', sans-serif;
+            margin: 0; padding: 0;
+            display: flex; justify-content: center;
+            line-height: 1.6;
+        }
 
-.container { max-width: 800px; width: 95%; margin-top: 40px; }
+        .container { max-width: 900px; width: 95%; margin-top: 40px; margin-bottom: 50px; }
 
-.search-box {
-    position: sticky; top: 20px;
-    background: var(--card-bg);
-    padding: 25px; border: 1px solid var(--border);
-    border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    z-index: 100;
-}
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { color: var(--accent); margin-bottom: 5px; }
+        header p { color: var(--text-muted); font-size: 0.9rem; }
 
-select, input {
-    width: 100%; background: #0f172a;
-    border: 1px solid var(--border); border-radius: 8px;
-    color: white; font-size: 1rem; padding: 12px 15px;
-    outline: none; font-family: 'SolaimanLipi', sans-serif;
-    margin-bottom: 15px; box-sizing: border-box;
-}
+        .search-box {
+            position: sticky; top: 20px;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 25px; border: 1px solid var(--border);
+            border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
 
-select:focus, input:focus { border-color: var(--primary); }
+        .input-group { position: relative; }
 
-.status { font-size: 0.75rem; color: var(--accent); text-align: right; margin-bottom: 8px; font-weight: bold; }
+        select, input {
+            width: 100%; background: #0f172a;
+            border: 1px solid var(--border); border-radius: 8px;
+            color: white; font-size: 1rem; padding: 12px 15px;
+            outline: none; font-family: 'SolaimanLipi', sans-serif;
+            margin-bottom: 12px; box-sizing: border-box;
+            transition: all 0.3s;
+        }
 
-.progress { height: 6px; background: #334155; border-radius: 10px; overflow: hidden; }
-.progress span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width 0.4s ease; }
+        select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
 
-.result-card {
-    background: var(--card-bg); margin-top: 20px; padding: 25px;
-    border-radius: 12px; border: 1px solid var(--border);
-    transition: transform 0.2s ease;
-}
+        .status { font-size: 0.85rem; color: var(--accent); text-align: right; margin-bottom: 8px; font-weight: bold; }
 
-.result-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+        .progress { height: 6px; background: #334155; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+        .progress span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width 0.3s; }
 
-.data-content { font-size: 1.05rem; color: #e2e8f0; line-height: 2; white-space: normal; }
+        #downloadBtn {
+            width: 100%; padding: 12px; background: var(--success);
+            color: white; border: none; border-radius: 8px;
+            font-weight: bold; cursor: pointer; display: none;
+            font-family: 'SolaimanLipi', sans-serif; transition: opacity 0.3s;
+        }
+        #downloadBtn:hover { opacity: 0.9; }
 
-.label-text { color: var(--accent); font-weight: bold; margin-right: 5px; }
+        .result-card {
+            background: var(--card-bg); margin-top: 15px; padding: 20px;
+            border-radius: 12px; border: 1px solid var(--border);
+            animation: fadeIn 0.4s ease forwards;
+        }
 
-.highlight { background: rgba(0, 123, 255, 0.4); border-bottom: 2px solid var(--primary); color: white; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-.count { text-align: center; margin: 30px 0; color: var(--text-muted); font-size: 0.9rem; }
-</style>
+        .data-content { font-size: 1.05rem; color: #e2e8f0; line-height: 1.8; }
+        .label-text { color: var(--accent); font-weight: bold; margin-right: 5px; }
+        .highlight { background: rgba(255, 230, 0, 0.3); color: #fff; padding: 0 2px; border-radius: 2px; }
+
+        .count { text-align: center; margin: 30px 0; color: var(--text-muted); }
+        
+        .error-msg { color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.9rem; }
+    </style>
 </head>
 
 <body>
 <div class="container">
+    <header>
+        <h1>Cyber-Scan Pro</h1>
+        <p>প্রফেশনাল ভোটার রেকর্ড সার্চ ইঞ্জিন</p>
+    </header>
+
     <div class="search-box">
-        <div id="status" class="status">সিস্টেম লোড হচ্ছে...</div>
-        <select id="pdfSelect">
-            <option value="pdfs/8n_male.pdf">৮নং ওয়ার্ড – পুরুষ</option>
-            <option value="pdfs/8n_female.pdf">৮নং ওয়ার্ড – মহিলা</option>
-        </select>
-        <input id="searchInput" placeholder="নাম, জন্ম তারিখ অথবা ভোটার নং দিয়ে খুঁজুন...">
+        <div id="status" class="status">সিস্টেম প্রস্তুত করা হচ্ছে...</div>
         <div class="progress"><span id="bar"></span></div>
+        
+        <select id="pdfSelect">
+            <option value="pdfs/8n_male.pdf">৮নং ওয়ার্ড – পুরুষ</option>
+            <option value="pdfs/8n_female.pdf">৮নং ওয়ার্ড – মহিলা</option>
+        </select>
+        
+        <input id="searchInput" placeholder="নাম, জন্ম তারিখ অথবা ভোটার নং দিয়ে খুঁজুন..." autocomplete="off">
+        <button id="downloadBtn">ফলাফল ডাউনলোড করুন (.txt)</button>
+        <div id="errorBox"></div>
     </div>
+
     <div id="results"></div>
     <div id="count" class="count"></div>
 </div>
 
 <script>
-const pdfjsLib=window['pdfjs-dist/build/pdf'];
-pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+const pdfjsLib = window['pdfjs-dist/build/pdf'];
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-const e2b={"0":"০","1":"১","2":"২","3":"৩","4":"৪","5":"৫","6":"৬","7":"৭","8":"৮","9":"৯"};
-const b2e={"০":"0","১":"1","২":"2","৩":"3","৪":"4","৫":"5","৬":"6","৭":"7","৮":"8","৯":"9"};
-const toBn=s=>s.replace(/[0-9]/g,d=>e2b[d]);
-const toEn=s=>s.replace(/[০-৯]/g,d=>b2e[d]);
+const e2b = {"0":"০","1":"১","2":"২","3":"৩","4":"৪","5":"৫","6":"৬","7":"৭","8":"৮","9":"৯"};
+const b2e = {"০":"0","১":"1","২":"2","৩":"3","৪":"4","৫":"5","৬":"6","৭":"7","৮":"8","৯":"9"};
+const toBn = s => s.replace(/[0-9]/g, d => e2b[d]);
+const toEn = s => s.replace(/[০-৯]/g, d => b2e[d]);
 
-const fixMap={
-/* LINE BREAKS & LABELS */
-"ভোটার নং:": "<br><span class='label-text'>ভোটার নং:</span>",
-"পিতা:": "<br><span class='label-text'>পিতা:</span>",
-"মাতা:": "<br><span class='label-text'>মাতা:</span>",
-"পেশা:": "<br><span class='label-text'>পেশা:</span>",
-"জন্ম তারিখ:": "<br><span class='label-text'>জন্ম তারিখ:</span>",
-"ঠিকানা:": "<br><span class='label-text'>ঠিকানা:</span>",
-
-
-/* ===== FULL KAR POSITION FIX (RESTORED) ===== */
-"িক":"কি","িখ":"খি","িগ":"গি","িঘ":"ঘি","িঙ":"ঙি","িচ":"চি","িছ":"ছি","িজ":"জি","িঝ":"ঝি","িঞ":"ঞি",
-"িট":"টি","িঠ":"ঠি","িড":"ডি","িঢ":"ঢি","িণ":"ণি","িত":"তি","িথ":"থি","িদ":"দি","িध":"ধি","িন":"নি",
-"িপ":"পি","িফ":"ফি","িব":"বি","িভ":"ভি","িম":"মি","িয":"যি","ির":"রি","িল":"লি","িশ":"শি",
-"িষ":"ষি","িস":"সি","িহ":"হি","িড়":"ড়ি","িঢ়":"ঢ়ি","িয়":"য়ি",
-"ীক":"কী","ীখ":"খী","ীগ":"গী","ীঘ":"ঘী","ীঙ":"ঙী","ীচ":"চী","ীছ":"ছী","ীজ":"জী","ীঝ":"ঝী","ীঞ":"ঞী",
-"ীট":"টী","ীঠ":"ঠী","ীড":"ডী","ীঢ":"ঢী","ীণ":"ণী","ীত":"তী","ীথ":"থী","ীদ":"দী","ীধ":"ধী","ীন":"নী",
-"ীপ":"পী","ীফ":"ফী","ীব":"বী","ীভ":"ভী","ীম":"মী","ীয":"যী","ীর":"রী","ীল":"লী","ীশ":"শী",
-"ীষ":"ষী","ীস":"সী","ীহ":"হী","ীড়":"ড়ী","ীঢ়":"ঢ়ী","ীয়":"য়ী",
-"ুক":"কু","ুখ":"খু","ুগ":"গু","ুঘ":"ঘু","ুঙ":"ঙু","ুচ":"চু","ুছ":"ছু","ুজ":"জু","ুঝ":"ঝু","ুঞ":"ঞু",
-"ুট":"টু","ুঠ":"ঠু","ুড":"ডু","ুঢ":"ঢু","ুণ":"ণু","ুত":"তু","ুথ":"থু","ুদ":"দু","ুধ":"ধু","ুন":"নু",
-"ুপ":"পু","ুফ":"ফু","ুব":"বু","ুভ":"ভু","ুম":"মু","ুয":"যু","ুর":"রু","ুল":"লু","ুশ":"শু",
-"ুষ":"ষু","ুস":"সু","ুহ":"হু","ুড়":"ড়ু","ুঢ়":"ঢ়ু","ুয়":"য়ু",
-"ূক":"কূ","ূখ":"খূ","ূগ":"গূ","ূঘ":"ঘূ","ূঙ":"ঙূ","ূচ":"চূ","ূছ":"ছূ","ূজ":"জূ","ূঝ":"ঝূ","ূঞ":"ঞূ",
-"ূট":"টূ","ূঠ":"ঠূ","ূড":"ডূ","ূঢ":"ঢূ","ূণ":"ণূ","ূত":"তূ","ূথ":"থূ","ূদ":"দূ","ূধ":"ধূ","ূন":"নূ",
-"ূপ":"পূ","ূফ":"ফূ","ূব":"বূ","ূভ":"ভূ","ূম":"মূ","ূয":"যূ","ূর":"রূ","ূল":"লূ","ূশ":"শূ",
-"ূষ":"ষূ","ূস":"সূ","ূহ":"হূ","ূড়":"ড়ূ","ূঢ়":"ঢ়ূ","ূয়":"য়ূ",
-"েক":"কে","েখ":"খে","েগ":"গে","েঘ":"ঘে","েঙ":"ঙে","েচ":"চে","েছ":"ছে","েজ":"জে","েঝ":"ঝে","েঞ":"ঞে",
-"েট":"টে","েঠ":"ঠে","েড":"ডে","েঢ":"ঢে","েণ":"ণে","েত":"তে","েথ":"থে","েদ":"দে","েধ":"ধে","েন":"নে",
-"েপ":"পে","েফ":"ফে","েব":"বে","েভ":"ভে","েম":"মে","েয":"যে","ের":"রে","েল":"লে","েশ":"শে",
-"েষ":"ষে","েস":"সে","েহ":"হে","েড়":"ড়ে","েঢ়":"ঢ়ে","েয়":"য়ে",
-"ৈক":"কৈ","ৈখ":"খৈ","ৈগ":"গৈ","ৈঘ":"ঘৈ","ৈঙ":"ঙৈ","ৈচ":"চৈ","ৈছ":"ছৈ","ৈজ":"জৈ","ৈঝ":"ঝৈ","ৈঞ":"ঞৈ",
-"ৈট":"টৈ","ৈঠ":"ঠৈ","ৈড":"ডৈ","ৈঢ":"ঢৈ","ৈণ":"ণৈ","ৈত":"তৈ","ৈথ":"থৈ","ৈদ":"দৈ","ৈধ":"ধৈ","ৈন":"নৈ",
-"ৈপ":"পৈ","ৈফ":"ফৈ","ৈব":"বৈ","ৈভ":"ভৈ","ৈম":"মৈ","ৈয":"যৈ","ৈর":"রৈ","ৈল":"লৈ","ৈশ":"শৈ",
-"ৈষ":"ষৈ","ৈস":"সৈ","ৈহ":"হৈ","ৈড়":"ড়ৈ","ৈঢ়":"ঢ়ৈ","ৈয়":"য়ৈ",
-"োক":"কো","োখ":"খো","োগ":"গো","োঘ":"ঘো","োঙ":"ঙো","োচ":"চো","োছ":"ছো","োজ":"জো","োঝ":"ঝো","োঞ":"ঞো",
-"োট":"টো","োঠ":"ঠো","োড":"ডো","োঢ":"ঢো","োণ":"ণো","োত":"তো","োথ":"থো","োদ":"দো","োধ":"ধো","োন":"নো",
-"োপ":"পো","োফ":"ফো","োব":"বো","োভ":"ভো","োম":"মো","োয":"যো","োর":"রো","োল":"লো","োশ":"শো",
-"োষ":"ষো","োস":"সো","োহ":"হো","োড়":"ড়ো","োঢ়":"ঢ়ো","োয়":"য়ো",
-"ৌক":"কৌ","ৌখ":"খৌ","ৌগ":"গৌ","ৌঘ":"ঘৌ","ৌঙ":"ঙৌ","ৌচ":"চৌ","ৌছ":"ছৌ","ৌজ":"জৌ","ৌঝ":"ঝৌ","ৌঞ":"ঞৌ",
-"ৌট":"টৌ","ৌঠ":"ঠৌ","ৌড":"ডৌ","ৌঢ":"ঢৌ","ৌণ":"ণৌ","ৌত":"তৌ","ৌথ":"থৌ","ৌদ":"দৌ","ৌধ":"ধৌ","ৌন":"নৌ",
-"ৌপ":"পৌ","ৌফ":"ফৌ","ৌব":"বৌ","ৌভ":"ভৌ","ৌম":"মৌ","ৌয":"যৌ","ৌর":"রৌ","ৌল":"লৌ","ৌশ":"শৌ",
-"ৌষ":"ষৌ","ৌস":"সৌ","ৌহ":"হৌ","ৌড়":"ড়ৌ","ৌঢ়":"ঢ়ৌ","ৌয়":"য়ৌ"
-
-/* OCR GARBAGE */
-"Ïমাঃ":"মোঃ"," Ïবগম": "বেগম","Ïভাটার নং":"ভোটার নং","Ïপশা":"পেশা","Ïভালা":" ",
-"ĥ":"ম","Ë":"্য","Ř":"শ","ē":"ত","ę":"দ","Ɓ":"রু","Ň":"ম্ম",
-"ছাĔ/ছাĔ":"ছাত্র/ছাত্রী","আ×ার": "আক্তার","িপতা":"পিতা","িঠকানা":"ঠিকানা",
-"জĥ তািরখ":"জন্ম তারিখ","চর ফËাশন": "চরফ্যাশন, ভোলা","Ï":"ি","চর ফ্যাশন,": "চর ফ্যাশন, ভোলা।",
-"Řিমক": "শ্রমিক", "বËবসা": "ব্যবসা", "Ïবসরকারী চাƣরী": "বেসরকারী চাকুরী","ভলোা।": "ভোলা।",
-"s": "নু","Ůলু": "স্কুল","Ů": "স্ক",
-" িবিব": "বিবি", "বািড়": "বাড়ি","ঠকিানা": "ঠিকানা","ƀফয়িা": "সুফিয়া","ƀ": "সু","ƃ": "দু","হিাসেন": "হোসেন",
-    
+const fixMap = {
+    "ভোটার নং:": "<br><span class='label-text'>ভোটার নং:</span>",
+    "পিতা:": "<br><span class='label-text'>পিতা:</span>",
+    "মাতা:": "<br><span class='label-text'>মাতা:</span>",
+    "পেশা:": "<br><span class='label-text'>পেশা:</span>",
+    "জন্ম তারিখ:": "<br><span class='label-text'>জন্ম তারিখ:</span>",
+    "ঠিকানা:": "<br><span class='label-text'>ঠিকানা:</span>",
+    "িক":"কি","িখ":"খি","িগ":"গি","িঘ":"ঘি","িচ":"চি","িছ":"ছি","িজ":"জি","িট":"টি","িঠ":"ঠি","িড":"ডি","িণ":"ণি","িত":"তি","িথ":"থি","িদ":"দি","িন":"নি","িপ":"পি","িফ":"ফি","িব":"বি","িভ":"ভি","িম":"মি","ির":"রি","িল":"লি","িশ":"শি","িষ":"ষি","িস":"সি","িহ":"হি","িড়":"ড়ি","িয়":"য়ি",
+    "েক":"কে","েখ":"খে","েগ":"গে","েত":"তে","েন":"নে","েপ":"পে","েব":"বে","েম":"মে","ের":"রে","েল":"লে","েশ":"শে","েস":"সে",
+    "োক":"কো","োগ":"গো","োচ":"চো","োত":"তো","োদ":"দো","োন":"নো","োপ":"পো","োব":"বো","োম":"মো","োর":"রো","োল":"লো","ৌশ":"শৌ",
+    "Ïমাঃ":"মোঃ","Ïবগম":"বেগম","Ïভাটার নং":"ভোটার নং","আ×ার":"আক্তার","জĥ তািরখ":"জন্ম তারিখ"
 };
 
-function fixBangla(t){
-    for(const k in fixMap) t=t.replaceAll(k,fixMap[k]);
-    return t.replace(/[ ]{2,}/g," ").trim();
+let records = [];
+
+function fixBangla(t) {
+    for (const k in fixMap) t = t.replaceAll(k, fixMap[k]);
+    return t.replace(/[ ]{2,}/g, " ").trim();
 }
 
-let records=[];
-async function loadPDF(path){
-    records=[];
-    const s=document.getElementById("status");
-    const bar=document.getElementById("bar");
-    s.textContent="পিডিএফ লোড হচ্ছে..."; bar.style.width="0%";
+async function loadPDF(path) {
+    records = [];
+    const s = document.getElementById("status");
+    const bar = document.getElementById("bar");
+    const err = document.getElementById("errorBox");
+    err.innerHTML = "";
+    s.textContent = "পিডিএফ লোড হচ্ছে..."; 
+    bar.style.width = "10%";
+
     try {
-        const pdf=await pdfjsLib.getDocument(path).promise;
-        let raw="";
-        for(let i=1;i<=pdf.numPages;i++){
-            const p=await pdf.getPage(i);
-            const c=await p.getTextContent();
-            raw+=c.items.map(x=>x.str).join(" ")+" ";
-            bar.style.width=(i/pdf.numPages*100)+"%";
+        const loadingTask = pdfjsLib.getDocument(path);
+        const pdf = await loadingTask.promise;
+        let raw = "";
+        
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const p = await pdf.getPage(i);
+            const c = await p.getTextContent();
+            raw += c.items.map(x => x.str).join(" ") + " ";
+            bar.style.width = (i / pdf.numPages * 100) + "%";
         }
-        records=raw.split(" Ïভালা").map(r=>fixBangla(r)).filter(Boolean);
-        s.textContent="ডেটাবেস প্রস্তুত";
-    } catch(e) { s.textContent="ফাইল পাওয়া যায়নি"; }
+
+        // Split by the common suffix in your OCR data to separate individual records
+        records = raw.split("Ïভালা").map(r => fixBangla(r)).filter(r => r.length > 20);
+        s.textContent = "ডেটাবেস প্রস্তুত: " + toBn(String(records.length)) + " জন";
+    } catch (e) {
+        s.textContent = "ব্যর্থ হয়েছে";
+        err.innerHTML = `<div class="error-msg">ত্রুটি: ${e.message}<br>নিশ্চিত করুন যে ফাইলটি 'pdfs' ফোল্ডারে আছে এবং আপনি Live Server ব্যবহার করছেন।</div>`;
+        console.error(e);
+    }
 }
 
-function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}
-function search(){
-    const q=document.getElementById("searchInput").value.trim();
-    const out=document.getElementById("results");
-    const cnt=document.getElementById("count");
-    out.innerHTML=""; cnt.textContent="";
-    if(!q||!records.length)return;
-    const qb=toBn(q),rx=new RegExp(esc(qb),"g");
-    let f=0;
-    records.forEach(r=>{
-        if(r.includes(qb)||r.includes(toEn(q))){
-            out.innerHTML+=`<div class="result-card"><div class="data-content">${r.replace(rx,`<span class="highlight">${qb}</span>`)}</div></div>`;
-            f++;
+function search() {
+    const q = document.getElementById("searchInput").value.trim();
+    const out = document.getElementById("results");
+    const cnt = document.getElementById("count");
+    const btn = document.getElementById("downloadBtn");
+    
+    out.innerHTML = ""; 
+    cnt.textContent = "";
+    btn.style.display = "none";
+
+    if (!q || !records.length) return;
+
+    const qBn = toBn(q);
+    const qEn = toEn(q);
+    let foundCount = 0;
+
+    records.forEach(r => {
+        if (r.includes(qBn) || r.includes(qEn)) {
+            const highlighted = r.replaceAll(qBn, `<span class="highlight">${qBn}</span>`);
+            out.innerHTML += `<div class="result-card"><div class="data-content">${highlighted}</div></div>`;
+            foundCount++;
         }
     });
-    cnt.textContent=f?`মোট ফলাফল: ${toBn(String(f))}`:"কোনো তথ্য পাওয়া যায়নি";
+
+    if (foundCount > 0) {
+        cnt.textContent = `মোট ফলাফল: ${toBn(String(foundCount))}`;
+        btn.style.display = "block";
+    } else {
+        cnt.textContent = "কোনো তথ্য পাওয়া যায়নি";
+    }
 }
 
-let t=null;
-searchInput.oninput=e=>{
-    clearTimeout(t);
-    const c=e.target.selectionStart;
-    e.target.value=toBn(e.target.value);
-    e.target.setSelectionRange(c,c);
-    t=setTimeout(search,160);
+// Download functionality
+document.getElementById("downloadBtn").onclick = () => {
+    const results = document.querySelectorAll(".result-card");
+    let content = "Cyber-Scan Pro Search Results\n" + "=".repeat(30) + "\n\n";
+    
+    results.forEach((card, i) => {
+        content += `[${i+1}] ${card.innerText}\n\n`;
+    });
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `Search_Results_${new Date().toLocaleDateString()}.txt`;
+    link.click();
 };
-pdfSelect.onchange=e=>loadPDF(e.target.value);
-loadPDF(pdfSelect.value);
+
+// Input handling
+let debounceTimer;
+document.getElementById("searchInput").oninput = e => {
+    clearTimeout(debounceTimer);
+    const cursor = e.target.selectionStart;
+    e.target.value = toBn(e.target.value);
+    e.target.setSelectionRange(cursor, cursor);
+    debounceTimer = setTimeout(search, 200);
+};
+
+document.getElementById("pdfSelect").onchange = e => loadPDF(e.target.value);
+
+// Initial Load
+window.onload = () => loadPDF(document.getElementById("pdfSelect").value);
 </script>
 </body>
 </html>
-
