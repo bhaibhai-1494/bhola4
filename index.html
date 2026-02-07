@@ -205,7 +205,7 @@ function handleSearch() {
     const results = document.getElementById("results");
     results.innerHTML = "";
 
-    if (query.length < 6 || !fullPdfText) return;
+    if (query.length < 2 || !fullPdfText) return;
 
     let pos = 0;
     let found = false;
@@ -265,6 +265,7 @@ initScanner();
 
 </body>
 </html>
+
 
 
 
