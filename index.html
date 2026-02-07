@@ -45,8 +45,6 @@
             z-index: 100;
         }
 
-        .input-group { position: relative; }
-
         select, input {
             width: 100%; background: #0f172a;
             border: 1px solid var(--border); border-radius: 8px;
@@ -92,7 +90,6 @@
         .highlight { background: rgba(255, 230, 0, 0.3); color: #fff; padding: 0 2px; border-radius: 2px; }
 
         .count { text-align: center; margin: 30px 0; color: var(--text-muted); }
-        
         .error-msg { color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.9rem; }
     </style>
 </head>
@@ -142,13 +139,13 @@ const fixMap = {
     "Ï": "ি", "ĥ": "ম", "Ë": "্য", "Ř": "শ", "ē": "ত", "ę": "দ", " িপশা:": "পেশা:", "Ïবসরকারী চাƣরী": "বেসরকারী চাকুরী","মিýল": "মঞ্জিল",
     " িবসরকারী চাƣরী": "বেসরকারী চাকুরী", "পাটÎ": "পার্ট", " িরাড": "রোড", "Ō": "ল্ল", "Ƅ": "শু", "Ñ": "ক্ক", "উতর": "উত্তর",
     
-    // Formatting Labels
+    // Updated Formatting Labels
     "নাম:": "<br><span class='label-text'>নাম:</span>",
     "ভোটার নং:": "<br><span class='label-text'>ভোটার নং:</span>",
     "পিতা:": "<br><span class='label-text'>পিতা:</span>",
     "মাতা:": "<br><span class='label-text'>মাতা:</span>",
     "পেশা:": "<br><span class='label-text'>পেশা:</span>",
-    "জম তারিখ:": "<br><span class='label-text'>জন্ম তারিখ:</span>",
+    "জন্ম তারিখ:": "<br><span class='label-text'>জন্ম তারিখ:</span>",
     "ঠিকানা:": "<br><span class='label-text'>ঠিকানা:</span>",
 };
 
@@ -180,14 +177,15 @@ async function loadPDF(path) {
             bar.style.width = (i / pdf.numPages * 100) + "%";
         }
 
-        // Updated Splitting Logic: Splits before any digits (En or Bn) followed by a dot
-        const splitPattern = /(?=\d+\.)|(?=[০-৯]+\.)/g;
+        // Logic Change: This regex splits by finding the gap before one or more digits followed by a dot.
+        // It correctly handles multiple digits (1234.) instead of just the last one.
+        const splitPattern = /\s+(?=[\d০-৯]+\.)/g;
         records = raw.split(splitPattern).map(r => fixBangla(r)).filter(r => r.length > 20);
         
         s.textContent = "ডেটাবেস প্রস্তুত: " + toBn(String(records.length)) + " জন";
     } catch (e) {
         s.textContent = "ব্যর্থ হয়েছে";
-        err.innerHTML = `<div class="error-msg">ত্রুটি: ${e.message}<br>নিশ্চিত করুন যে ফাইলটি 'pdfs' ফোল্ডারে আছে এবং আপনি Live Server ব্যবহার করছেন।</div>`;
+        err.innerHTML = `<div class="error-msg">ত্রুটি: ${e.message}<br>নিশ্চিত করুন যে ফাইলটি 'pdfs' ফোল্ডারে আছে।</div>`;
         console.error(e);
     }
 }
@@ -209,6 +207,7 @@ function search() {
     let foundCount = 0;
 
     records.forEach(r => {
+        // Search check works for both Bengali and English digits
         if (r.includes(qBn) || r.includes(qEn)) {
             const highlighted = r.replaceAll(qBn, `<span class="highlight">${qBn}</span>`);
             out.innerHTML += `<div class="result-card"><div class="data-content">${highlighted}</div></div>`;
@@ -227,11 +226,9 @@ function search() {
 document.getElementById("downloadBtn").onclick = () => {
     const results = document.querySelectorAll(".result-card");
     let content = "Cyber-Scan Pro Search Results\n" + "=".repeat(30) + "\n\n";
-    
     results.forEach((card, i) => {
         content += `[${i+1}] ${card.innerText}\n\n`;
     });
-
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -245,18 +242,9 @@ document.getElementById("searchInput").oninput = e => {
     e.target.setSelectionRange(cursor, cursor);
 };
 
-document.getElementById("searchBtn").onclick = () => {
-    search();
-};
-
-document.getElementById("searchInput").onkeydown = e => {
-    if (e.key === "Enter") {
-        search();
-    }
-};
-
+document.getElementById("searchBtn").onclick = () => search();
+document.getElementById("searchInput").onkeydown = e => { if (e.key === "Enter") search(); };
 document.getElementById("pdfSelect").onchange = e => loadPDF(e.target.value);
-
 window.onload = () => loadPDF(document.getElementById("pdfSelect").value);
 </script>
 </body>
