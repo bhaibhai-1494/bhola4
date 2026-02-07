@@ -3,192 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cyber-Scan Pro | Record Finder</title>
+<title>Cyber-Scan Pro | Professional Record Finder</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
 <style>
 @import url('https://fonts.cdnfonts.com/css/solaimanlipi');
 
-:root{--neon:#00f3ff;--bg:#020205;}
-body{
- background:var(--bg);color:#e0e0e0;font-family:'SolaimanLipi',sans-serif;
- margin:0;padding:20px;display:flex;justify-content:center;
+:root {
+    --primary: #007bff;
+    --accent: #00d4ff;
+    --bg-dark: #0f172a;
+    --card-bg: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: #334155;
 }
-.container{max-width:900px;width:100%;}
-.search-box{
- position:sticky;top:10px;background:rgba(2,2,5,.97);
- padding:20px;border:1px solid var(--neon);border-radius:14px;
- box-shadow:0 0 25px rgba(0,243,255,.25);z-index:10;
+
+body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+    font-family: 'SolaimanLipi', sans-serif;
+    margin: 0; padding: 0;
+    display: flex; justify-content: center;
+    line-height: 1.6;
 }
-select,input{
- width:100%;background:transparent;border:none;
- border-bottom:2px solid var(--neon);color:white;
- font-size:1.2rem;padding:10px 0;outline:none;
- font-family:'SolaimanLipi',sans-serif;margin-bottom:12px;
+
+.container { max-width: 800px; width: 95%; margin-top: 40px; }
+
+.search-box {
+    position: sticky; top: 20px;
+    background: var(--card-bg);
+    padding: 25px; border: 1px solid var(--border);
+    border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    z-index: 100;
 }
-.status{font-size:.7rem;color:var(--neon);text-align:center;letter-spacing:2px;}
-.progress{height:4px;background:#033;border-radius:4px;overflow:hidden;}
-.progress span{display:block;height:100%;width:0%;background:var(--neon);}
-.result-card{
- background:rgba(255,255,255,.05);margin-top:18px;
- padding:22px;border-radius:14px;border-left:5px solid var(--neon);
- line-height:1.9;
+
+select, input {
+    width: 100%; background: #0f172a;
+    border: 1px solid var(--border); border-radius: 8px;
+    color: white; font-size: 1rem; padding: 12px 15px;
+    outline: none; font-family: 'SolaimanLipi', sans-serif;
+    margin-bottom: 15px; box-sizing: border-box;
 }
-.data-content{white-space:pre-wrap;font-size:1.1rem;}
-.highlight{background:rgba(0,243,255,.45);padding:0 3px;border-radius:3px;font-weight:bold;}
-.count{text-align:center;margin-top:15px;color:#7ff;font-size:.85rem;}
+
+select:focus, input:focus { border-color: var(--primary); }
+
+.status { font-size: 0.75rem; color: var(--accent); text-align: right; margin-bottom: 8px; font-weight: bold; }
+
+.progress { height: 6px; background: #334155; border-radius: 10px; overflow: hidden; }
+.progress span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width 0.4s ease; }
+
+.result-card {
+    background: var(--card-bg); margin-top: 20px; padding: 25px;
+    border-radius: 12px; border: 1px solid var(--border);
+    transition: transform 0.2s ease;
+}
+
+.result-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+
+.data-content { font-size: 1.05rem; color: #e2e8f0; line-height: 2; white-space: normal; }
+
+.label-text { color: var(--accent); font-weight: bold; margin-right: 5px; }
+
+.highlight { background: rgba(0, 123, 255, 0.4); border-bottom: 2px solid var(--primary); color: white; }
+
+.count { text-align: center; margin: 30px 0; color: var(--text-muted); font-size: 0.9rem; }
 </style>
 </head>
 
 <body>
 <div class="container">
-
-<div class="search-box">
-<select id="pdfSelect">
-<option value="pdfs/8n_male.pdf">৮নং – Male</option>
-<option value="pdfs/8n_female.pdf">৮নং – Female</option>
-</select>
-
-<input id="searchInput" placeholder="নাম / জন্ম তারিখ / ভোটার নং">
-
-<div id="status" class="status">Initializing…</div>
-<div class="progress"><span id="bar"></span></div>
-</div>
-
-<div id="results"></div>
-<div id="count" class="count"></div>
-
+    <div class="search-box">
+        <div id="status" class="status">সিস্টেম লোড হচ্ছে...</div>
+        <select id="pdfSelect">
+            <option value="pdfs/8n_male.pdf">৮নং ওয়ার্ড – পুরুষ</option>
+            <option value="pdfs/8n_female.pdf">৮নং ওয়ার্ড – মহিলা</option>
+        </select>
+        <input id="searchInput" placeholder="নাম, জন্ম তারিখ অথবা ভোটার নং দিয়ে খুঁজুন...">
+        <div class="progress"><span id="bar"></span></div>
+    </div>
+    <div id="results"></div>
+    <div id="count" class="count"></div>
 </div>
 
 <script>
-/* ================= PDF ================= */
 const pdfjsLib=window['pdfjs-dist/build/pdf'];
-pdfjsLib.GlobalWorkerOptions.workerSrc=
-'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-/* ================= DIGIT ================= */
 const e2b={"0":"০","1":"১","2":"২","3":"৩","4":"৪","5":"৫","6":"৬","7":"৭","8":"৮","9":"৯"};
 const b2e={"০":"0","১":"1","২":"2","৩":"3","৪":"4","৫":"5","৬":"6","৭":"7","৮":"8","৯":"9"};
 const toBn=s=>s.replace(/[0-9]/g,d=>e2b[d]);
 const toEn=s=>s.replace(/[০-৯]/g,d=>b2e[d]);
 
-/* ================= AUTO BANGLA FIX (UPGRADED) ================= */
 const fixMap={
+/* LINE BREAKS & LABELS */
+"ভোটার নং:": "<br><span class='label-text'>ভোটার নং:</span>",
+"পিতা:": "<br><span class='label-text'>পিতা:</span>",
+"মাতা:": "<br><span class='label-text'>মাতা:</span>",
+"পেশা:": "<br><span class='label-text'>পেশা:</span>",
+"জন্ম তারিখ:": "<br><span class='label-text'>জন্ম তারিখ:</span>",
+"ঠিকানা:": "<br><span class='label-text'>ঠিকানা:</span>",
 
 /* OCR GARBAGE */
 "Ïমাঃ":"মোঃ"," Ïবগম": "বেগম","Ïভাটার নং":"ভোটার নং","Ïপশা":"পেশা","Ïভালা":" ",
 "ĥ":"ম","Ë":"্য","Ř":"শ","ē":"ত","ę":"দ","Ɓ":"রু","Ň":"ম্ম",
 "ছাĔ/ছাĔ":"ছাত্র/ছাত্রী","আ×ার": "আক্তার","িপতা":"পিতা","িঠকানা":"ঠিকানা",
 "জĥ তািরখ":"জন্ম তারিখ","চর ফËাশন": "চরফ্যাশন, ভোলা","Ï":"ি","চর ফ্যাশন,": "চর ফ্যাশন, ভোলা।",
-"Řিমক": "শ্রমিক", "বËবসা": "ব্যবসা", "Ïবসরকারী চাƣরী": "বেসরকারী চাকুরী",
-" িবিব": "বিবি", "বািড়": "বাড়ি","ঠকিানা": "ঠিকানা","ƀফয়িা": "সুফিয়া",
+"Řিমক": "শ্রমিক", "বËবসা": "ব্যবসা", "Ïবসরকারী চাƣরী": "বেসরকারী চাকুরী","ভলোা।": "ভোলা।",
+"s": "নু","Ůলু": "স্কুল","Ů": "স্ক",
+" িবিব": "বিবি", "বািড়": "বাড়ি","ঠকিানা": "ঠিকানা","ƀফয়িা": "সুফিয়া","ƀ": "সু","ƃ": "দু","হিাসেন": "হোসেন",
 
-/* ===== KAR POSITION FIX ===== */
-
-/* ি */
+/* ===== FULL KAR POSITION FIX (RESTORED) ===== */
 "িক":"কি","িখ":"খি","িগ":"গি","িঘ":"ঘি","িঙ":"ঙি","িচ":"চি","িছ":"ছি","িজ":"জি","িঝ":"ঝি","িঞ":"ঞি",
-"িট":"টি","িঠ":"ঠি","িড":"ডি","িঢ":"ঢি","িণ":"ণি","িত":"তি","িথ":"থি","িদ":"দি","িধ":"ধি","িন":"নি",
+"িট":"টি","িঠ":"ঠি","িড":"ডি","িঢ":"ঢি","িণ":"ণি","িত":"তি","িথ":"থি","িদ":"দি","িध":"ধি","িন":"নি",
 "িপ":"পি","িফ":"ফি","িব":"বি","িভ":"ভি","িম":"মি","িয":"যি","ির":"রি","িল":"লি","িশ":"শি",
-"িষ":"ষি","িস":"সি","িহ":"হি","িড়":"ড়ি","িঢ়":"ঢ়ি","িয়":"য়ি",
-
-/* ী */
+"িষ":"ষি","িস":"সি","িহ":"হি","িড়":"ড়ি","িঢ়":"ঢ়ি","িয়":"য়ি",
 "ীক":"কী","ীখ":"খী","ীগ":"গী","ীঘ":"ঘী","ীঙ":"ঙী","ীচ":"চী","ীছ":"ছী","ীজ":"জী","ীঝ":"ঝী","ীঞ":"ঞী",
 "ীট":"টী","ীঠ":"ঠী","ীড":"ডী","ীঢ":"ঢী","ীণ":"ণী","ীত":"তী","ীথ":"থী","ীদ":"দী","ীধ":"ধী","ীন":"নী",
 "ীপ":"পী","ীফ":"ফী","ীব":"বী","ীভ":"ভী","ীম":"মী","ীয":"যী","ীর":"রী","ীল":"লী","ীশ":"শী",
-"ীষ":"ষী","ীস":"সী","ীহ":"হী","ীড়":"ড়ী","ীঢ়":"ঢ়ী","ীয়":"য়ী",
-
-/* ু */
+"ীষ":"ষী","ীস":"সী","ীহ":"হী","ীড়":"ড়ী","ীঢ়":"ঢ়ী","ীয়":"য়ী",
 "ুক":"কু","ুখ":"খু","ুগ":"গু","ুঘ":"ঘু","ুঙ":"ঙু","ুচ":"চু","ুছ":"ছু","ুজ":"জু","ুঝ":"ঝু","ুঞ":"ঞু",
 "ুট":"টু","ুঠ":"ঠু","ুড":"ডু","ুঢ":"ঢু","ুণ":"ণু","ুত":"তু","ুথ":"থু","ুদ":"দু","ুধ":"ধু","ুন":"নু",
 "ুপ":"পু","ুফ":"ফু","ুব":"বু","ুভ":"ভু","ুম":"মু","ুয":"যু","ুর":"রু","ুল":"লু","ুশ":"শু",
-"ুষ":"ষু","ুস":"সু","ুহ":"হু","ুড়":"ড়ু","ুঢ়":"ঢ়ু","ুয়":"য়ু",
-
-/* ূ */
+"ুষ":"ষু","ুস":"সু","ুহ":"হু","ুড়":"ড়ু","ুঢ়":"ঢ়ু","ুয়":"য়ু",
 "ূক":"কূ","ূখ":"খূ","ূগ":"গূ","ূঘ":"ঘূ","ূঙ":"ঙূ","ূচ":"চূ","ূছ":"ছূ","ূজ":"জূ","ূঝ":"ঝূ","ূঞ":"ঞূ",
 "ূট":"টূ","ূঠ":"ঠূ","ূড":"ডূ","ূঢ":"ঢূ","ূণ":"ণূ","ূত":"তূ","ূথ":"থূ","ূদ":"দূ","ূধ":"ধূ","ূন":"নূ",
 "ূপ":"পূ","ূফ":"ফূ","ূব":"বূ","ূভ":"ভূ","ূম":"মূ","ূয":"যূ","ূর":"রূ","ূল":"লূ","ূশ":"শূ",
-"ূষ":"ষূ","ূস":"সূ","ূহ":"হূ","ূড়":"ড়ূ","ূঢ়":"ঢ়ূ","ূয়":"য়ূ",
-
-/* ে */
+"ূষ":"ষূ","ূস":"সূ","ূহ":"হূ","ূড়":"ড়ূ","ূঢ়":"ঢ়ূ","ূয়":"য়ূ",
 "েক":"কে","েখ":"খে","েগ":"গে","েঘ":"ঘে","েঙ":"ঙে","েচ":"চে","েছ":"ছে","েজ":"জে","েঝ":"ঝে","েঞ":"ঞে",
 "েট":"টে","েঠ":"ঠে","েড":"ডে","েঢ":"ঢে","েণ":"ণে","েত":"তে","েথ":"থে","েদ":"দে","েধ":"ধে","েন":"নে",
 "েপ":"পে","েফ":"ফে","েব":"বে","েভ":"ভে","েম":"মে","েয":"যে","ের":"রে","েল":"লে","েশ":"শে",
-"েষ":"ষে","েস":"সে","েহ":"হে","েড়":"ড়ে","েঢ়":"ঢ়ে","েয়":"য়ে",
-
-/* ৈ */
+"েষ":"ষে","েস":"সে","েহ":"হে","েড়":"ড়ে","েঢ়":"ঢ়ে","েয়":"য়ে",
 "ৈক":"কৈ","ৈখ":"খৈ","ৈগ":"গৈ","ৈঘ":"ঘৈ","ৈঙ":"ঙৈ","ৈচ":"চৈ","ৈছ":"ছৈ","ৈজ":"জৈ","ৈঝ":"ঝৈ","ৈঞ":"ঞৈ",
 "ৈট":"টৈ","ৈঠ":"ঠৈ","ৈড":"ডৈ","ৈঢ":"ঢৈ","ৈণ":"ণৈ","ৈত":"তৈ","ৈথ":"থৈ","ৈদ":"দৈ","ৈধ":"ধৈ","ৈন":"নৈ",
 "ৈপ":"পৈ","ৈফ":"ফৈ","ৈব":"বৈ","ৈভ":"ভৈ","ৈম":"মৈ","ৈয":"যৈ","ৈর":"রৈ","ৈল":"লৈ","ৈশ":"শৈ",
-"ৈষ":"ষৈ","ৈস":"সৈ","ৈহ":"হৈ","ৈড়":"ড়ৈ","ৈঢ়":"ঢ়ৈ","ৈয়":"য়ৈ",
-
-/* ো */
+"ৈষ":"ষৈ","ৈস":"সৈ","ৈহ":"হৈ","ৈড়":"ড়ৈ","ৈঢ়":"ঢ়ৈ","ৈয়":"য়ৈ",
 "োক":"কো","োখ":"খো","োগ":"গো","োঘ":"ঘো","োঙ":"ঙো","োচ":"চো","োছ":"ছো","োজ":"জো","োঝ":"ঝো","োঞ":"ঞো",
 "োট":"টো","োঠ":"ঠো","োড":"ডো","োঢ":"ঢো","োণ":"ণো","োত":"তো","োথ":"থো","োদ":"দো","োধ":"ধো","োন":"নো",
 "োপ":"পো","োফ":"ফো","োব":"বো","োভ":"ভো","োম":"মো","োয":"যো","োর":"রো","োল":"লো","োশ":"শো",
-"োষ":"ষো","োস":"সো","োহ":"হো","োড়":"ড়ো","োঢ়":"ঢ়ো","োয়":"য়ো",
-
-/* ৌ */
+"োষ":"ষো","োস":"সো","োহ":"হো","োড়":"ড়ো","োঢ়":"ঢ়ো","োয়":"য়ো",
 "ৌক":"কৌ","ৌখ":"খৌ","ৌগ":"গৌ","ৌঘ":"ঘৌ","ৌঙ":"ঙৌ","ৌচ":"চৌ","ৌছ":"ছৌ","ৌজ":"জৌ","ৌঝ":"ঝৌ","ৌঞ":"ঞৌ",
 "ৌট":"টৌ","ৌঠ":"ঠৌ","ৌড":"ডৌ","ৌঢ":"ঢৌ","ৌণ":"ণৌ","ৌত":"তৌ","ৌথ":"থৌ","ৌদ":"দৌ","ৌধ":"ধৌ","ৌন":"নৌ",
 "ৌপ":"পৌ","ৌফ":"ফৌ","ৌব":"বৌ","ৌভ":"ভৌ","ৌম":"মৌ","ৌয":"যৌ","ৌর":"রৌ","ৌল":"লৌ","ৌশ":"শৌ",
-"ৌষ":"ষৌ","ৌস":"সৌ","ৌহ":"হৌ","ৌড়":"ড়ৌ","ৌঢ়":"ঢ়ৌ","ৌয়":"য়ৌ"
+"ৌষ":"ষৌ","ৌস":"সৌ","ৌহ":"হৌ","ৌড়":"ড়ৌ","ৌঢ়":"ঢ়ৌ","ৌয়":"য়ৌ"
 };
 
 function fixBangla(t){
- for(const k in fixMap) t=t.replaceAll(k,fixMap[k]);
- return t.replace(/\s{2,}/g," ").trim();
+    for(const k in fixMap) t=t.replaceAll(k,fixMap[k]);
+    return t.replace(/[ ]{2,}/g," ").trim();
 }
 
-/* ================= ENGINE + SEARCH (UNCHANGED) ================= */
 let records=[];
 async function loadPDF(path){
- records=[];
- const s=document.getElementById("status");
- const bar=document.getElementById("bar");
- s.textContent="Loading PDF…";bar.style.width="0%";
- const pdf=await pdfjsLib.getDocument(path).promise;
- let raw="";
- for(let i=1;i<=pdf.numPages;i++){
-  const p=await pdf.getPage(i);
-  const c=await p.getTextContent();
-  raw+=c.items.map(x=>x.str).join(" ")+" ";
-  bar.style.width=(i/pdf.numPages*100)+"%";
- }
- records=raw.split(" Ïভালা").map(r=>fixBangla(r)).filter(Boolean);
- s.textContent="DATABASE READY";
+    records=[];
+    const s=document.getElementById("status");
+    const bar=document.getElementById("bar");
+    s.textContent="পিডিএফ লোড হচ্ছে..."; bar.style.width="0%";
+    try {
+        const pdf=await pdfjsLib.getDocument(path).promise;
+        let raw="";
+        for(let i=1;i<=pdf.numPages;i++){
+            const p=await pdf.getPage(i);
+            const c=await p.getTextContent();
+            raw+=c.items.map(x=>x.str).join(" ")+" ";
+            bar.style.width=(i/pdf.numPages*100)+"%";
+        }
+        records=raw.split(" Ïভালা").map(r=>fixBangla(r)).filter(Boolean);
+        s.textContent="ডেটাবেস প্রস্তুত";
+    } catch(e) { s.textContent="ফাইল পাওয়া যায়নি"; }
 }
 
 function esc(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");}
 function search(){
- const q=document.getElementById("searchInput").value.trim();
- const out=document.getElementById("results");
- const cnt=document.getElementById("count");
- out.innerHTML="";cnt.textContent="";
- if(!q||!records.length)return;
- const qb=toBn(q),qe=toEn(q),rx=new RegExp(esc(qb),"g");
- let f=0;
- records.forEach(r=>{
-  if(r.includes(qb)||r.includes(qe)){
-   out.innerHTML+=`<div class="result-card"><div class="data-content">${r.replace(rx,`<span class="highlight">${qb}</span>`)}</div></div>`;
-   f++;
-  }
- });
- cnt.textContent=f?`মোট ফলাফল: ${toBn(String(f))}`:"কোনো তথ্য পাওয়া যায়নি";
+    const q=document.getElementById("searchInput").value.trim();
+    const out=document.getElementById("results");
+    const cnt=document.getElementById("count");
+    out.innerHTML=""; cnt.textContent="";
+    if(!q||!records.length)return;
+    const qb=toBn(q),rx=new RegExp(esc(qb),"g");
+    let f=0;
+    records.forEach(r=>{
+        if(r.includes(qb)||r.includes(toEn(q))){
+            out.innerHTML+=`<div class="result-card"><div class="data-content">${r.replace(rx,`<span class="highlight">${qb}</span>`)}</div></div>`;
+            f++;
+        }
+    });
+    cnt.textContent=f?`মোট ফলাফল: ${toBn(String(f))}`:"কোনো তথ্য পাওয়া যায়নি";
 }
 
 let t=null;
 searchInput.oninput=e=>{
- clearTimeout(t);
- const c=e.target.selectionStart;
- e.target.value=toBn(e.target.value);
- e.target.setSelectionRange(c,c);
- t=setTimeout(search,160);
+    clearTimeout(t);
+    const c=e.target.selectionStart;
+    e.target.value=toBn(e.target.value);
+    e.target.setSelectionRange(c,c);
+    t=setTimeout(search,160);
 };
 pdfSelect.onchange=e=>loadPDF(e.target.value);
-
 loadPDF(pdfSelect.value);
 </script>
 </body>
 </html>
-
