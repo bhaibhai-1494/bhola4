@@ -3,113 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyber-Scan Pro | Professional Record Finder</title>
+    <title>Cyber-Scan Pro | Bhola 4 Record Finder</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
     <style>
         @import url('https://fonts.cdnfonts.com/css/solaimanlipi');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
         :root {
-            --primary: #3b82f6;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
             --accent: #06b6d4;
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
+            --bg-dark: #070b14;
+            --card-bg: #111827;
+            --glass: rgba(17, 24, 39, 0.8);
+            --text-main: #f1f5f9;
             --text-muted: #94a3b8;
-            --border: #334155;
-            --success: #22c55e;
+            --border: #1f2937;
+            --success: #10b981;
         }
 
         body {
             background: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.1) 0px, transparent 50%);
             color: var(--text-main);
-            font-family: 'SolaimanLipi', sans-serif;
+            font-family: 'Inter', 'SolaimanLipi', sans-serif;
             margin: 0; padding: 0;
-            display: flex; justify-content: center;
-            line-height: 1.6;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
         }
 
-        .container { max-width: 900px; width: 95%; margin-top: 40px; margin-bottom: 50px; }
+        .container { max-width: 800px; width: 92%; margin-top: 60px; padding-bottom: 100px; }
 
-        header { text-align: center; margin-bottom: 30px; }
-        header h1 { color: var(--accent); margin-bottom: 5px; }
-        header p { color: var(--text-muted); font-size: 0.9rem; }
+        header { text-align: center; margin-bottom: 40px; }
+        header h1 { 
+            font-size: 2.5rem; 
+            background: linear-gradient(to right, #60a5fa, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        header p { color: var(--text-muted); font-size: 1rem; opacity: 0.8; }
 
         .search-box {
             position: sticky; top: 20px;
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(12px);
-            padding: 25px; border: 1px solid var(--border);
-            border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            background: var(--glass);
+            backdrop-filter: blur(16px);
+            padding: 30px; border: 1px solid var(--border);
+            border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
             z-index: 100;
         }
 
+        .status { 
+            font-size: 0.8rem; 
+            color: var(--accent); 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            margin-bottom: 10px; 
+            font-weight: 600;
+        }
+
+        .progress { height: 4px; background: #1f2937; border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+        .progress span { display: block; height: 100%; width: 0%; background: var(--primary); transition: width 0.4s ease; }
+
         .selector-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; margin-bottom: 15px;
         }
 
         select, input {
-            width: 100%; background: #0f172a;
-            border: 1px solid var(--border); border-radius: 8px;
-            color: white; font-size: 1rem; padding: 12px 15px;
-            outline: none; font-family: 'SolaimanLipi', sans-serif;
-            margin-bottom: 12px; box-sizing: border-box;
-            transition: all 0.3s;
+            width: 100%; background: #030712;
+            border: 1px solid var(--border); border-radius: 12px;
+            color: white; font-size: 0.95rem; padding: 14px;
+            outline: none; font-family: inherit;
+            box-sizing: border-box; transition: all 0.2s;
         }
 
-        select:focus, input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); }
+        select:focus, input:focus { border-color: var(--primary); ring: 2px var(--primary); }
 
         #searchBtn {
-            width: 100%; padding: 12px; background: var(--primary);
-            color: white; border: none; border-radius: 8px;
-            font-weight: bold; cursor: pointer; margin-bottom: 12px;
-            font-family: 'SolaimanLipi', sans-serif; transition: opacity 0.3s;
+            width: 100%; padding: 14px; background: var(--primary);
+            color: white; border: none; border-radius: 12px;
+            font-weight: 600; cursor: pointer; margin-bottom: 12px;
+            font-size: 1rem; transition: background 0.3s;
         }
-        #searchBtn:hover { opacity: 0.9; }
-
-        .status { font-size: 0.85rem; color: var(--accent); text-align: right; margin-bottom: 8px; font-weight: bold; }
-
-        .progress { height: 6px; background: #334155; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
-        .progress span { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width 0.3s; }
+        #searchBtn:hover { background: var(--primary-hover); }
 
         #downloadBtn {
-            width: 100%; padding: 12px; background: var(--success);
-            color: white; border: none; border-radius: 8px;
-            font-weight: bold; cursor: pointer; display: none;
-            font-family: 'SolaimanLipi', sans-serif; transition: opacity 0.3s;
+            width: 100%; padding: 12px; background: transparent;
+            color: var(--success); border: 1px solid var(--success); border-radius: 12px;
+            font-weight: 600; cursor: pointer; display: none; margin-top: 10px;
         }
-        #downloadBtn:hover { opacity: 0.9; }
+        #downloadBtn:hover { background: rgba(16, 185, 129, 0.1); }
 
         .result-card {
-            background: var(--card-bg); margin-top: 15px; padding: 20px;
-            border-radius: 12px; border: 1px solid var(--border);
-            animation: fadeIn 0.4s ease forwards;
+            background: var(--card-bg); margin-top: 16px; padding: 24px;
+            border-radius: 18px; border: 1px solid var(--border);
+            transition: transform 0.2s;
         }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .result-card:hover { transform: translateY(-2px); border-color: #374151; }
 
         .data-content { font-size: 1.05rem; color: #e2e8f0; line-height: 1.8; }
-        .label-text { color: var(--accent); font-weight: bold; margin-right: 5px; }
-        .highlight { background: rgba(255, 230, 0, 0.3); color: #fff; padding: 0 2px; border-radius: 2px; }
+        .label-text { color: var(--accent); font-weight: 600; margin-right: 6px; font-size: 0.9rem; }
+        .highlight { background: rgba(37, 99, 235, 0.3); border-bottom: 2px solid var(--primary); color: #fff; }
 
-        .count { text-align: center; margin: 30px 0; color: var(--text-muted); }
-        .error-msg { color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.9rem; }
+        .count { text-align: center; margin-top: 40px; color: var(--text-muted); font-weight: 500; }
+
+        /* Creator Footer */
+        footer {
+            margin-top: auto; width: 100%; padding: 40px 0;
+            border-top: 1px solid var(--border); text-align: center;
+            background: rgba(0,0,0,0.2);
+        }
+        .footer-content h3 { color: var(--text-main); font-size: 1.1rem; margin-bottom: 5px; }
+        .footer-content p { color: var(--text-muted); font-size: 0.85rem; }
+        .contact-links { margin-top: 15px; }
+        .contact-links a { 
+            color: var(--primary); text-decoration: none; 
+            margin: 0 10px; font-weight: 600; font-size: 0.9rem;
+        }
+        .contact-links a:hover { text-decoration: underline; }
+
+        .error-msg { color: #f87171; background: rgba(248, 113, 113, 0.1); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid rgba(248, 113, 113, 0.2); }
     </style>
 </head>
 
 <body>
 <div class="container">
     <header>
-        <h1>Bhola 4</h1>
-        <p>প্রফেশনাল ভোটার রেকর্ড সার্চ ইঞ্জিন</p>
+        <h1>Bhai Bhai Phone Shefa Medical Center</h1>
+        <p>ভোলা-৪ (চরফ্যাশন-মনপুরা) উন্নত ভোটার রেকর্ড অনুসন্ধান সিস্টেম</p>
     </header>
 
     <div class="search-box">
-        <div id="status" class="status">সিস্টেম প্রস্তুত করা হচ্ছে...</div>
+        <div id="status" class="status">Initializing System...</div>
         <div class="progress"><span id="bar"></span></div>
         
         <div class="selector-group">
@@ -131,16 +162,28 @@
             </select>
         </div>
         
-        <input id="searchInput" placeholder="নাম, জন্ম তারিখ অথবা ভোটার নং দিয়ে খুঁজুন..." autocomplete="off">
-        <button id="searchBtn">তথ্য খুঁজুন</button>
+        <input id="searchInput" placeholder="নাম, জন্ম তারিখ অথবা ভোটার নং লিখুন..." autocomplete="off">
+        <button id="searchBtn">অনুসন্ধান করুন</button>
         
-        <button id="downloadBtn">ফলাফল ডাউনলোড করুন (.txt)</button>
+        <button id="downloadBtn">ফলাফল সেভ করুন (.txt)</button>
         <div id="errorBox"></div>
     </div>
 
     <div id="results"></div>
     <div id="count" class="count"></div>
 </div>
+
+<footer>
+    <div class="footer-content">
+        <h3>Bhai Bhai Scan Pro v2.0</h3>
+        <p>Created by Md. Rayhan</p>
+        <div class="contact-links">
+            <a href="mailto:bhaibhai1494@gmail.com">Email Developer</a>
+            <a href="https://wa.me/qr/M6MQ5PRJECBDD1">WhatsApp Support</a>
+        </div>
+        <p style="margin-top: 20px; font-size: 0.7rem; opacity: 0.5;">© 2024 All Rights Reserved.</p>
+    </div>
+</footer>
 
 <script>
 const pdfjsLib = window['pdfjs-dist/build/pdf'];
@@ -186,9 +229,9 @@ const fixMap = {
     " েমহে": "মেহে", "Ŧ": "স্ক", " েব": "বে",
 
     "Ũা": "স্টা", "ĺু": "ব্দু", "মািঝ": "মাঝি", "êী": "ঙ্গী", "Ɔ": "হু", 
-    "২০ চূড়ান্ত ভোটার তালিকা জেলা: উপজেলা: চর ফ্যাশন ইউনিয়ন: ওয়ার্ড নং-০৮ ডাকঘর: চরফ্যাশন ভোটার এলাকার কোড: ০৯১২ ভোটার এলাকার নাম: উত্তর মাদাজ -৮নং ওয়ার্ড অংশ (েপৗরসভার সাবেক ৯নং ওয়ার্ড অংশ)": " ",
+    "২০ চূড়ান্ত ভোটার তালিকা জেলা: উপজেলা: চর ফ্যাশন ইউনিয়ন: ওয়ার্ড নং-০৮ ডাকঘর: চরফ্যাশন ভোটার এলাকার কোড: ০৯১২ ভোটার এলাকার": " ",
+    "নাম: উত্তর মাদাজ -৮নং ওয়ার্ড অংশ (েপৗরসভার সাবেক ৯নং ওয়ার্ড অংশ)": " ",
     
-    // Updated Formatting Labels
     "নাম:": "<br><span class='label-text'>নাম:</span>",
     "ভোটার নং:": "<br><span class='label-text'>ভোটার নং:</span>",
     "পিতা:": "<br><span class='label-text'>পিতা:</span>",
@@ -211,7 +254,7 @@ async function loadPDF(path) {
     const bar = document.getElementById("bar");
     const err = document.getElementById("errorBox");
     err.innerHTML = "";
-    s.textContent = "পিডিএফ লোড হচ্ছে..."; 
+    s.textContent = "Loading Records..."; 
     bar.style.width = "10%";
 
     try {
@@ -229,11 +272,10 @@ async function loadPDF(path) {
         const splitPattern = /\s+(?=[\d০-৯]+\.)/g;
         records = raw.split(splitPattern).map(r => fixBangla(r)).filter(r => r.length > 20);
         
-        s.textContent = "ডেটাবেস প্রস্তুত: " + toBn(String(records.length)) + " জন";
+        s.textContent = "DATABASE READY: " + toBn(String(records.length)) + " RECORDS";
     } catch (e) {
-        s.textContent = "ব্যর্থ হয়েছে";
-        err.innerHTML = `<div class="error-msg">ত্রুটি: ${e.message}<br>নিশ্চিত করুন যে ফাইলটি 'pdfs' ফোল্ডারে আছে।</div>`;
-        console.error(e);
+        s.textContent = "ERROR LOADING FILE";
+        err.innerHTML = `<div class="error-msg">Error: ${e.message}<br>Verify the PDF exists in the 'pdfs' folder.</div>`;
     }
 }
 
@@ -262,31 +304,27 @@ function search() {
     });
 
     if (foundCount > 0) {
-        cnt.textContent = `মোট ফলাফল: ${toBn(String(foundCount))}`;
+        cnt.textContent = `মোট ${toBn(String(foundCount))} টি তথ্য পাওয়া গেছে`;
         btn.style.display = "block";
     } else {
-        cnt.textContent = "কোনো তথ্য পাওয়া যায়নি";
+        cnt.textContent = "কোনো তথ্য খুঁজে পাওয়া যায়নি";
     }
 }
 
-// Logic to build the file path based on Ward and Gender
 function updateAndLoad() {
     const ward = document.getElementById("wardSelect").value;
     const gender = document.getElementById("genderSelect").value;
-    const path = `pdfs/${ward}n_${gender}.pdf`;
-    loadPDF(path);
+    loadPDF(`pdfs/${ward}n_${gender}.pdf`);
 }
 
 document.getElementById("downloadBtn").onclick = () => {
     const results = document.querySelectorAll(".result-card");
-    let content = "Cyber-Scan Pro Search Results\n" + "=".repeat(30) + "\n\n";
-    results.forEach((card, i) => {
-        content += `[${i+1}] ${card.innerText}\n\n`;
-    });
+    let content = "Cyber-Scan Pro Results\n" + "=".repeat(20) + "\n\n";
+    results.forEach((card, i) => { content += `[${i+1}] ${card.innerText}\n\n`; });
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `Search_Results_${new Date().toLocaleDateString()}.txt`;
+    link.download = `Search_Results.txt`;
     link.click();
 };
 
@@ -298,8 +336,6 @@ document.getElementById("searchInput").oninput = e => {
 
 document.getElementById("searchBtn").onclick = () => search();
 document.getElementById("searchInput").onkeydown = e => { if (e.key === "Enter") search(); };
-
-// Listen for changes on both dropdowns
 document.getElementById("wardSelect").onchange = () => updateAndLoad();
 document.getElementById("genderSelect").onchange = () => updateAndLoad();
 
