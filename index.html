@@ -10,12 +10,12 @@
 <style>
 @import url('https://fonts.cdnfonts.com/css/solaimanlipi');
 
-:root {
+:root{
     --neon:#00f3ff;
     --bg:#020205;
 }
 
-body {
+body{
     background:var(--bg);
     color:#e0e0e0;
     font-family:'SolaimanLipi', sans-serif;
@@ -25,12 +25,12 @@ body {
     justify-content:center;
 }
 
-.container {
+.container{
     width:100%;
     max-width:850px;
 }
 
-.search-box {
+.search-box{
     position:sticky;
     top:10px;
     background:rgba(2,2,5,.95);
@@ -41,7 +41,7 @@ body {
     z-index:10;
 }
 
-input {
+input{
     width:100%;
     background:transparent;
     border:none;
@@ -53,9 +53,9 @@ input {
     font-family:'SolaimanLipi', sans-serif;
 }
 
-input::placeholder { color:#888; }
+input::placeholder{ color:#888; }
 
-.status {
+.status{
     font-size:.7rem;
     color:var(--neon);
     text-align:center;
@@ -64,7 +64,7 @@ input::placeholder { color:#888; }
     text-transform:uppercase;
 }
 
-.result-card {
+.result-card{
     background:rgba(255,255,255,.05);
     margin-top:20px;
     padding:25px;
@@ -74,28 +74,21 @@ input::placeholder { color:#888; }
     animation:fadeIn .3s ease;
 }
 
-.data-content {
+.data-content{
     font-size:1.15rem;
     white-space:pre-wrap;
 }
 
-.highlight {
+.highlight{
     background:rgba(0,243,255,.45);
     padding:0 3px;
     border-radius:3px;
     font-weight:bold;
 }
 
-.voter {
-    color:var(--neon);
-    font-weight:bold;
-    display:block;
-    margin-bottom:10px;
-}
-
-@keyframes fadeIn {
-    from { opacity:0; transform:translateY(10px); }
-    to { opacity:1; transform:translateY(0); }
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
 }
 </style>
 </head>
@@ -115,6 +108,7 @@ input::placeholder { color:#888; }
 </div>
 
 <script>
+/* ===== PDF.JS ===== */
 const pdfjsLib = window['pdfjs-dist/build/pdf'];
 pdfjsLib.GlobalWorkerOptions.workerSrc =
 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
@@ -123,37 +117,26 @@ let fullPdfText = "";
 
 /* ===== DIGIT CONVERTER ===== */
 const engToBn = {"0":"০","1":"১","2":"২","3":"৩","4":"৪","5":"৫","6":"৬","7":"৭","8":"৮","9":"৯"};
-function convertToBanglaDigits(v){ return v.replace(/[0-9]/g,d=>engToBn[d]); }
+function convertToBanglaDigits(v){
+    return v.replace(/[0-9]/g, d => engToBn[d]);
+}
 
-/* ===== AUTO BANGLA FIXER ===== */
+/* ===== AUTO BANGLA FIXER (FIXED) ===== */
 const fixMap = {
-    /* =========================
-   AUTO BANGLA OCR FIX MAP
-   OPTIMIZED & ORDERED
-========================= */
 
-/* --- 1️⃣ OCR / GARBAGE SYMBOL FIX --- */
-const fixMap = {
+  /* OCR / GARBAGE */
   "Ïমাঃ":"মোঃ",
   "Ïভাটার নং":"ভোটার নং",
   "Ïপশা":"পেশা",
   " Ïবগম":" বেগম",
   "Ïবসরকারী চাƣরী":"বেসরকারী চাকুরী",
   "Ïভালা":" ",
-  "ĥ":"ম",
-  "Ë":"্য",
-  "Ř":"শ",
-  "ē":"ত",
-  "ę":"দ",
-  "Ɓ":"রু",
-  "Ň":"ম্ম",
-  "ĺু":"ব্দু",
-  "s":"নু",
+  "ĥ":"ম","Ë":"্য","Ř":"শ","ē":"ত","ę":"দ",
+  "Ɓ":"রু","Ň":"ম্ম","ĺু":"ব্দু","s":"নু",
 
-/* --- 2️⃣ COMMON WORD FIX --- */
+  /* COMMON WORD */
   "ছাĔ/ছাĔ":"ছাত্র/ছাত্রী",
   "িপতা":"পিতা",
-  "মাতা":"মাতা",
   "িঠকানা":"ঠিকানা",
   "জĥ তািরখ":"জন্ম তারিখ",
   "উēর":"উত্তর",
@@ -161,52 +144,27 @@ const fixMap = {
   "চর ফËাশন":"চরফ্যাশন, ভোলা",
   "Řিমক":"শ্রমিক",
   "বËবসা":"ব্যবসা",
-  " িবিব":" বিবি",
   "বািড়":"বাড়ি",
   "মিýল":"মঞ্জিল",
-  "পাটÎ":"পার্ট",
   "আ×ার":"আক্তার",
 
-/* --- 3️⃣ KAR POSITION FIX (ি) --- */
+  /* KAR FIX */
   "িক":"কি","িখ":"খি","িগ":"গি","িঘ":"ঘি","িঙ":"ঙি",
-  "িচ":"চি","িছ":"ছি","িজ":"জি","িঝ":"ঝি","িঞ":"ঞি",
-  "িট":"টি","িঠ":"ঠি","িড":"ডি","িঢ":"ঢি","িণ":"ণি",
-  "িত":"তি","িথ":"থি","িদ":"দি","িধ":"ধি","িন":"নি",
-  "িপ":"পি","িফ":"ফি","িব":"বি","িভ":"ভি","িম":"মি",
-  "িয":"যি","ির":"রি","িল":"লি","িশ":"শি","িষ":"ষি",
-  "িস":"সি","িহ":"হি","িড়":"ড়ি","িঢ়":"ঢ়ি","িয়":"য়ি",
-
-/* --- 4️⃣ KAR POSITION FIX (া) --- */
   "াক":"কা","াখ":"খা","াগ":"গা","াঘ":"ঘা","াঙ":"ঙা",
-  "াচ":"চা","াছ":"ছা","াজ":"জা","াঝ":"ঝা","াঞ":"ঞা",
-  "াট":"টা","াঠ":"ঠা","াড":"ডা","াঢ":"ঢা","াণ":"ণা",
-  "াত":"তা","াথ":"থা","াদ":"দা","াধ":"ধা","ান":"না",
-  "াপ":"পা","াফ":"ফা","াব":"বা","াভ":"ভা","াম":"মা",
-  "ায":"যা","ার":"রা","াল":"লা","াশ":"শা","াষ":"ষা",
-  "াস":"সা","াহ":"হা","াড়":"ড়া","াঢ়":"ঢ়া","ায়":"য়া",
 
-/* --- 5️⃣ LONG VOWEL (ী) --- */
-  "ীক":"কী","ীখ":"খী","ীগ":"গী","ীঘ":"ঘী","ীঙ":"ঙী",
-  "ীচ":"চী","ীছ":"ছী","ীজ":"জী","ীঝ":"ঝী","ীঞ":"ঞী",
-  "ীট":"টী","ীঠ":"ঠী","ীড":"ডী","ীঢ":"ঢী","ীণ":"ণী",
-  "ীত":"তী","ীথ":"থী","ীদ":"দী","ীধ":"ধী","ীন":"নী",
-  "ীপ":"পী","ীফ":"ফী","ীব":"বী","ীভ":"ভী","ীম":"মী",
-  "ীর":"রী","ীল":"লী","ীশ":"শী","ীষ":"ষী","ীস":"সী",
-  "ীহ":"হী","ীড়":"ড়ী","ীঢ়":"ঢ়ী","ীয়":"য়ী",
-
-/* --- 6️⃣ FALLBACK SYMBOL --- */
+  /* FALLBACK */
   "Ï":"ি"
 };
 
 function autoFixBangla(text){
-  for(const bad in fixMap){
-    text = text.replaceAll(bad, fixMap[bad]);
-  }
-  return text
-    .replace(/\s{2,}/g," ")
-    .replace(/ ,/g,",")
-    .replace(/ \./g,".")
-    .trim();
+    for(const bad in fixMap){
+        text = text.replaceAll(bad, fixMap[bad]);
+    }
+    return text
+        .replace(/\s{2,}/g," ")
+        .replace(/ ,/g,",")
+        .replace(/ \./g,".")
+        .trim();
 }
 
 /* ===== LOAD PDF ===== */
@@ -227,7 +185,7 @@ async function initScanner(){
     }
 }
 
-/* ===== SEARCH (RAW → FIXED DISPLAY) ===== */
+/* ===== SEARCH ===== */
 function handleSearch(){
     const query = document.getElementById("searchInput").value.trim();
     const results = document.getElementById("results");
@@ -245,18 +203,13 @@ function handleSearch(){
         let end = fullPdfText.indexOf(" Ïভালা",pos+query.length);
         if(end===-1) end = pos+300;
 
-        /* RAW RECORD */
-        let rawRecord = fullPdfText.substring(start,end).trim();
+        let raw = fullPdfText.substring(start,end);
 
-        /* highlight RAW safely */
         const safe = query.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-        let highlightedRaw = rawRecord.replace(
-            new RegExp(safe,"g"),
-            "<<<H>>>"+query+"<<<E>>>"
-        );
+        let marked = raw.replace(new RegExp(safe,"g"),
+            "<<<H>>>"+query+"<<<E>>>");
 
-        /* FIX ONLY FOR DISPLAY */
-        let fixed = autoFixBangla(highlightedRaw)
+        let fixed = autoFixBangla(marked)
             .replaceAll("<<<H>>>","<span class='highlight'>")
             .replaceAll("<<<E>>>","</span>");
 
@@ -269,15 +222,16 @@ function handleSearch(){
     }
 
     if(!found){
-        results.innerHTML="<p style='text-align:center;color:gray;'>কোনো তথ্য পাওয়া যায়নি</p>";
+        results.innerHTML =
+        "<p style='text-align:center;color:gray;'>কোনো তথ্য পাওয়া যায়নি</p>";
     }
 }
 
 /* ===== INPUT ===== */
-const input=document.getElementById("searchInput");
+const input = document.getElementById("searchInput");
 input.addEventListener("input",()=>{
-    const c=input.selectionStart;
-    input.value=convertToBanglaDigits(input.value);
+    const c = input.selectionStart;
+    input.value = convertToBanglaDigits(input.value);
     input.setSelectionRange(c,c);
     handleSearch();
 });
