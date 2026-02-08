@@ -47,7 +47,6 @@
         }
         header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
 
-        /* Search Box - Non-floating and Compact */
         .search-box {
             background: rgba(17, 24, 39, 0.6);
             border: 1px solid var(--border);
@@ -67,8 +66,13 @@
         .progress span { display: block; height: 100%; width: 0%; background: var(--primary); transition: width 0.4s ease; }
 
         .selector-group {
-            display: grid; grid-template-columns: 1fr 1fr;
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 10px; margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .selector-group { grid-template-columns: 1fr; }
         }
 
         select, input {
@@ -93,13 +97,11 @@
             font-weight: 600; cursor: pointer; display: none; margin-top: 10px; font-size: 0.85rem;
         }
 
-        /* Result Cards */
         .result-card {
             background: var(--card-bg); margin-top: 15px; padding: 20px;
             border-radius: 15px; border: 1px solid var(--border);
         }
 
-        /* First Line Highlight Styling */
         .record-header {
             display: block;
             text-align: center;
@@ -141,20 +143,48 @@
         <div class="progress"><span id="bar"></span></div>
         
         <div class="selector-group">
-            <select id="wardSelect">
-                <option value="1">ওয়ার্ড ০১</option>
-                <option value="2">ওয়ার্ড ০২</option>
-                <option value="3">ওয়ার্ড ০৩</option>
-                <option value="4">ওয়ার্ড ০৪</option>
-                <option value="5">ওয়ার্ড ০৫</option>
-                <option value="6">ওয়ার্ড ০৬</option>
-                <option value="7">ওয়ার্ড ০৭</option>
-                <option value="8" selected>ওয়ার্ড ০৮</option>
-                <option value="9">ওয়ার্ড ০৯</option>
+            <select id="unionSelect">
+                <option value="">ওয়ার্ড/ইউনিয়ন সিলেক্ট করুন</option>
+                <optgroup label="চর ফ্যাশন">
+                    <option value="char_fasson">চর ফ্যাশন পৌরসভা</option>
+                    <option value="abdullapur">আবদুল্লাপুর</option>
+                    <option value="abubakarpur">আবুবকরপুর</option>
+                    <option value="ahmadpur">আহম্মদপুর</option>
+                    <option value="aminabad">আমিনাবাদ</option>
+                    <option value="aslampur">আসলামপুর</option>
+                                        
+
+
+                    
+                    <option value="osman_ganj">ওসমানগঞ্জ</option>
+                    <option value="eveshopur">এওয়াজপুর</option>
+                    <option value="jahanpur">জাহানপুর</option>
+                    <option value="jinna_gar">জিন্নগড়</option>
+                    <option value="dhal_char">ঢালচর</option>
+                    <option value="nazrul_nagar">নজরুলনগর</option>
+                    <option value="nilkamal">নীলকমল</option>
+                    <option value="nurabad">নূরাবাদ</option>
+                    <option value="mujib_nagar">মুজিবনগর</option>
+                    <option value="madras">মাদ্রাজ</option>
+                    <option value="rasulpur">রাসুলপুর</option>
+                    <option value="hazariganj">হাজারীগঞ্জ</option>
+                </optgroup>
+                <optgroup label="মনপুরা">
+                    <option value="monpura">মনপুরা ইউনিয়ন</option>
+                    <option value="hazirhat">হাজীরহাট</option>
+                    <option value="sakuchia_north">উত্তর সাকুচিয়া</option>
+                    <option value="sakuchia_south">দক্ষিণ সাকুচিয়া</option>
+                </optgroup>
             </select>
+
+            <select id="wardSelect">
+                <option value="">এলাকা সিলেক্ট করুন</option>
+            </select>
+
             <select id="genderSelect">
                 <option value="male">পুরুষ</option>
                 <option value="female">মহিলা</option>
+                <option value="hijra">হিজড়া</option>
             </select>
         </div>
         
@@ -201,7 +231,6 @@ const fixMap = {
     "েটা": "টো", "েঠা": "ঠো", "েডা": "ডো", "েঢা": "ঢো", "েণা": "ণো", "েতা": "তো", "েথা": "থো", "েদা": "দো",
     "েধা": "ধো", "েনা": "নো", "েপা": "পো", "েফা": "ফো", "েবা": "বো", "েভা": "ভো", "েমা": "মো", "েযা": "যো",
     "েরা": "রো", "েলা": "লো", "েশা": "শো", "েষা": "ষো", "েসা": "সো", "েহা": "হো", "েড়া": "ড়ো", "েঢ়া": "ঢ়ো", "েয়া": "য়ো",
-  
     "েশ্র": "শ্রে", "েপ্র": "প্রে", "েব্র": "ব্রে", "েত্র": "ত্রে", 
     "েক্র": "ক্রে", "েগ্র": "গ্রে", "েদ্র": "দ্রে", "েধ্র": "ধ্রে",
     "েক্ল": "ক্লে", "েপ্ল": "প্লে", "েস্লা": "স্লে", 
@@ -221,11 +250,9 @@ const fixMap = {
     "েহ": "হে", "েড়": "ড়ে", "েঢ়": "ঢ়ে", "েয়": "য়ে",
     "েড়": "ড়ে", "েঢ়": "ঢ়ে", 
     "Ũা": "স্টা", "ĺু": "ব্দু", "মািঝ": "মাঝি", "êী": "ঙ্গী", "Ɔ": "হু", 
-    "২০ চূড়ান্ত ভোটার তালিকা জেলা: উপজেলা: চর ফ্যাশন ইউনিয়ন: ওয়ার্ড নং-০৮ ডাকঘর: চরফ্যাশন ভোটার এলাকার কোড: ০৯১২ ভোটার এলাকার": " ",
     "েপৗ": "পৌ", "ওয়াডÎ": "ওয়ার্ড", "ļ": "ব্ব", "বািড়": "বাড়ি", " ের": "রে", "õ": "জ্জ", "েপৗ": "পৌ",
     "Ĵ": "প্র", " হোিল্ডং": "হোল্ডিং", "Ĩ": "ন্ন", "ă": "ড্র", "েস": "সে", "×": "ক্ত", "Ĝ": "দ্ধ",
-    
-    "Ľ": "ব্র", "Ð": "ৈ", "শমিক": "শ্রমিক", "Ž": "গু", "বািড়": "বাড়ি", " ৈছ": "ছৈ",
+    "Ľ": "ব্র", "Ð": "ৈ", "শমিক": "শ্রমিক", "Ž": "গু", "বািড়": "বাড়ি", " ৈছ": "ছৈ", "Ù": "ক্ষ", "Ş": "স্ট",
     "নাম:": "<br><span class='label-text'>নাম:</span>",
     "ভোটার নং:": "<br><span class='label-text'>ভোটার নং:</span>",
     "পিতা:": "<br><span class='label-text'>পিতা:</span>",
@@ -236,6 +263,31 @@ const fixMap = {
 };
 
 let records = [];
+
+const areaData = {
+    "char_fasson": ["ওয়ার্ড ০১", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "ahmadpur": ["ওয়ার্ড ০১ (আহম্মদপুর পূর্ব)", "ওয়ার্ড ০২ (আহম্মদপুর পশ্চিম)", "ওয়ার্ড ০৩ (আহম্মদপুর উত্তর)", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "aslampur": ["ওয়ার্ড ০১ (আসলামপুর পূর্ব)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "aminabad": ["ওয়ার্ড ০১ (আমিনাবাদ উত্তর)", "ওয়ার্ড ০২ (আমিনাবাদ দক্ষিণ)", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "abubakarpur": ["আবুবকরপুর (৫নং ওয়ার্ড অংশ)", "আবুবকরপুর (৬নং ওয়ার্ড অংশ)", "আবুবকরপুর (৭নং ওয়ার্ড অংশ)", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "abdullapur": ["আবুবকরপুর ১নং ওয়ার্ড", "আবুবকরপুর ২নং ওয়ার্ড", "আবুবকরপুর (৭নং ওয়ার্ড অংশ)ড", "আবুবকরপুর (৮নং ওয়ার্ড অংশ)", "আবুবকরপুর (৯নং ওয়ার্ড অংশ)ড", "উত্তর শিবা (শিবার চর) (৯নং ওয়ার্ড অংশ)", "ওসমানগঞ্জ (১নং ওয়ার্ড অংশ)", "ওসমানগঞ্জ (২নং ওয়ার্ড অংশ)", "হাসানগঞ্জ (৩নং ওয়ার্ড অংশ)", "হাসানগঞ্জ (৪নং ওয়ার্ড অংশ)",],
+    "osman_ganj": ["ওয়ার্ড ০১ (ওসমানগঞ্জ সদর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "eveshopur": ["ওয়ার্ড ০১ (এওয়াজপুর উত্তর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "jahanpur": ["ওয়ার্ড ০১ (জাহানপুর বাজার)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "jinna_gar": ["ওয়ার্ড ০১ (জিন্নগড় পূর্ব)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "dhal_char": ["ওয়ার্ড ০১ (ঢালচর উত্তর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "nazrul_nagar": ["ওয়ার্ড ০১ (নজরুলনগর সদর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "nilkamal": ["ওয়ার্ড ০১ (নীলকমল দক্ষিণ)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "nurabad": ["ওয়ার্ড ০১ (নূরাবাদ সদর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "mujib_nagar": ["ওয়ার্ড ০১ (মুজিবনগর উত্তর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "madras": ["ওয়ার্ড ০১ (মাদ্রাজ বাজার)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "rasulpur": ["ওয়ার্ড ০১ (রাসুলপুর সদর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "hazariganj": ["ওয়ার্ড ০১ (হাজারীগঞ্জ সদর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "monpura": ["ওয়ার্ড ০১ (মনপুরা উত্তর)", "ওয়ার্ড ০২ (মনপুরা দক্ষিণ)", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "hazirhat": ["ওয়ার্ড ০১ (হাজীরহাট সদর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "sakuchia_north": ["ওয়ার্ড ০১ (উত্তর সাকুচিয়া সদর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"],
+    "sakuchia_south": ["ওয়ার্ড ০১ (দক্ষিণ সাকুচিয়া সদর)", "ওয়ার্ড ০২", "ওয়ার্ড ০৩", "ওয়ার্ড ০৪", "ওয়ার্ড ০৫", "ওয়ার্ড ০৬", "ওয়ার্ড ০৭", "ওয়ার্ড ০৮", "ওয়ার্ড ০৯"]
+};
 
 function fixBangla(t) {
     for (const k in fixMap) t = t.replaceAll(k, fixMap[k]);
@@ -263,8 +315,25 @@ async function loadPDF(path) {
         records = raw.split(splitPattern).map(r => fixBangla(r)).filter(r => r.length > 20);
         s.textContent = "DATABASE READY: " + toBn(String(records.length)) + " RECORDS";
     } catch (e) {
-        s.textContent = "ERROR";
+        s.textContent = "FILE NOT FOUND";
         console.error(e);
+    }
+}
+
+function populateWards() {
+    const union = document.getElementById("unionSelect").value;
+    const wardSelect = document.getElementById("wardSelect");
+    wardSelect.innerHTML = '<option value="">এলাকা সিলেক্ট করুন</option>';
+    
+    if (union && areaData[union]) {
+        areaData[union].forEach((wardName, index) => {
+            const option = document.createElement("option");
+            option.value = index + 1;
+            option.textContent = wardName;
+            wardSelect.appendChild(option);
+        });
+        if(union === "char_fasson") wardSelect.value = "8";
+        else wardSelect.selectedIndex = 1;
     }
 }
 
@@ -286,7 +355,6 @@ function search() {
 
     records.forEach(r => {
         if (r.includes(qBn) || r.includes(qEn)) {
-            // TRUNCATION FIX: Cut off everything after the location keywords
             let finalRecord = r;
             const stopPoints = ["চর ফ্যাশন, ভোলা।", "চর ফ্যাশন,"];
             
@@ -321,9 +389,13 @@ function search() {
 }
 
 function updateAndLoad() {
+    const union = document.getElementById("unionSelect").value;
     const ward = document.getElementById("wardSelect").value;
     const gender = document.getElementById("genderSelect").value;
-    loadPDF(`pdfs/${ward}n_${gender}.pdf`);
+    
+    if(union && ward) {
+        loadPDF(`pdfs/${union}_${ward}n_${gender}.pdf`);
+    }
 }
 
 document.getElementById("downloadBtn").onclick = () => {
@@ -345,12 +417,18 @@ document.getElementById("searchInput").oninput = e => {
 
 document.getElementById("searchBtn").onclick = () => search();
 document.getElementById("searchInput").onkeydown = e => { if (e.key === "Enter") search(); };
+
+document.getElementById("unionSelect").onchange = () => {
+    populateWards();
+    updateAndLoad();
+};
 document.getElementById("wardSelect").onchange = () => updateAndLoad();
 document.getElementById("genderSelect").onchange = () => updateAndLoad();
 
-window.onload = () => updateAndLoad();
+window.onload = () => {
+    populateWards();
+    updateAndLoad();
+};
 </script>
 </body>
 </html>
-
-
